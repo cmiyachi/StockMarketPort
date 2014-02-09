@@ -1,5 +1,7 @@
 
 
+
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
@@ -16,8 +18,11 @@ import java.util.Set;
 public class ScrapStockData {
 
 
-    Map<String, String> mapStockInfoCodes = new HashMap<String, String>();
+    private Map<String, String> mapStockInfoCodes = new HashMap<String, String>();
 
+
+
+    private YahooFinanceConnection yahooFinanceConnection = new YahooFinanceConnection();
 
     /*
      *  Constructs HashMap with available stock information options
@@ -53,33 +58,15 @@ public class ScrapStockData {
 
     }
 
-   /*
-    * constructs URL for history Report
-    *
-    * @returns
-    * History URL
-    */
 
-    private String constructURLHistory(String Symbol, Date fromDate, Date toDate){
-        String URL="www...history";
-        return URL;
-    }
-
-    private String constructURLInfo(String Symbol, String infoName){
-        String URL="www......info";
-        return URL;
-    }
-
-    /*
-     * Gets Symbol and From- To Dates from GUI for History Report
-     *
-     * @return List of String Arrays;
-     */
 
 
     public List<String[]> stockHistory(String Symbol, Date fromDate, Date toDate){
 
-        //report format
+      // List<String> stockHistoryList = new ArrayList<String>();
+      // stockHistoryList = yahooFinanceConnection.getInformationList(Symbol, fromDate, toDate);
+      // return stockHistoryList;
+        //report format is List<String[]>  or List<String>  ????
 
         String [] str1 = { "Date",          "Open",     "High",     "Low",      "Close",    "Volume",   "Adj Close" };
         String [] str2 = { "2010-01-25",   "546.59",   "549.88",   "525.61",   "529.94",   "4021800",   "529.94"};
@@ -97,7 +84,7 @@ public class ScrapStockData {
     }
 
     public String getCompanyName(String Symbol){
-        String companyName="General Electric";
+        String companyName=yahooFinanceConnection.getInformationList(Symbol,"n").get(0);
         return companyName;
     }
 
@@ -111,7 +98,7 @@ public class ScrapStockData {
 
 
     public String getStockInfoOn(String Symbol, String infoName){
-        String info = "28.216B";
+        String info = yahooFinanceConnection.getInformationList(Symbol,"k1").get(0);
         return info;
     }
 }
