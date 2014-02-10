@@ -61,13 +61,13 @@ public class ScrapStockData {
 
 
 
-    public List<String[]> stockHistory(String Symbol, Date fromDate, Date toDate){
+    public List<String> stockHistory(String Symbol, Date fromDate, Date toDate){
 
-      // List<String> stockHistoryList = new ArrayList<String>();
-      // stockHistoryList = yahooFinanceConnection.getInformationList(Symbol, fromDate, toDate);
-      // return stockHistoryList;
+      List<String> stockHistoryList = new ArrayList<String>();
+      stockHistoryList = yahooFinanceConnection.getInformationList(Symbol, fromDate, toDate);
+     // return stockHistoryList;
         //report format is List<String[]>  or List<String>  ????
-
+/*
         String [] str1 = { "Date",          "Open",     "High",     "Low",      "Close",    "Volume",   "Adj Close" };
         String [] str2 = { "2010-01-25",   "546.59",   "549.88",   "525.61",   "529.94",   "4021800",   "529.94"};
         String [] str3 = { "2010-01-19",   "581.20",   "590.42",   "534.86",   "550.01",   "5168800",   "550.01"};
@@ -78,7 +78,7 @@ public class ScrapStockData {
         stockHistoryList.add(str1);
         stockHistoryList.add(str2);
         stockHistoryList.add(str3);
-
+*/
 
         return stockHistoryList;
     }
