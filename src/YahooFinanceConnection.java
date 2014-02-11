@@ -2,8 +2,11 @@
  * Created by Ivan on 09/02/14.
  */
 import java.util.Date;
+import java.util.Calendar;
 import java.util.ArrayList;
 import java.util.List;
+import java.net.*;
+import java.io.*;
 
 public class YahooFinanceConnection {
 
@@ -15,7 +18,21 @@ public class YahooFinanceConnection {
  */
 
     private List<String> getInfoFromURL(String urlString){
-         List<String> listStr = new ArrayList<String>();
+         
+        List<String> listStr = new ArrayList<String>();
+        
+         listStr.clear();
+
+      try{   
+         URL url = new URL(urlString);
+         URLConnection urlConnection = url.openConnection();
+         BufferedReader in = new BufferedReader(new InputStreamReader( urlConnection.getInputStream()));
+         String inputLine;
+        while ((inputLine = in.readLine()) != null)   listStr.add(inputLine);
+        in.close();
+      }
+      catch(Exception e){}
+         
         return listStr;
     }
 
@@ -28,15 +45,29 @@ public class YahooFinanceConnection {
      * @return History report for given data
      */
     public List<String> getInformationList(String Symbol, Date fromDate, Date toDate){
+        
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(fromDate);
+        int fromMonth = cal.get(Calendar.MONTH);
+        int fromDay = cal.get(Calendar.DAY_OF_MONTH);
+        int fromYear = cal.get(Calendar.YEAR);
+        
+        cal.setTime(toDate);
+        int toMonth = cal.get(Calendar.MONTH);
+        int toDay = cal.get(Calendar.DAY_OF_MONTH);
+        int toYear = cal.get(Calendar.YEAR);
+        
 
-        listInfo = getInfoFromURL("http://.....Symbol Dates.....history");
-
-        listInfo.clear();
-        listInfo.add("Date,Open,High,Low,Close,Volume,Adj Close");
-        listInfo.add("2012-01-30,101.45,104.94,100.87,102.82,7002000,49.98");
-        listInfo.add("2012-01-23,101.92,103.29,101.02,102.11,4074100,49.63");
-        listInfo.add("2012-01-17,98.70,102.00,98.05,101.76,4828600,49.46");
-        listInfo.add("2012-01-09,98.10,99.14,97.68,98.30,4090600,47.78");
+        listInfo = getInfoFromURL("http://ichart.yahoo.com/table.csv?s="+
+                
+                Symbol + 
+                "&a="+( fromMonth - 1)+
+                "&b="+ fromDay +
+                "&c="+ fromYear + 
+                "&d="+(toMonth - 1 )+
+                "&e="+ toDay +
+                "&f=" + toYear + "&g=d&ignore=.csv");
+       
         return listInfo;
     }
 
@@ -50,10 +81,15 @@ public class YahooFinanceConnection {
 
     public List<String> getInformationList(String Symbol, String infoCode){
 
-        listInfo = getInfoFromURL("http://....Symbol infoCode......information");
+        listInfo = getInfoFromURL("http://download.finance.yahoo.com/d/quotes.csv?s="+
+                Symbol+
+                "&f="+infoCode+
+                "&e=.csv");
 
-        listInfo.clear();
-        listInfo.add("General Electric");
+       
         return listInfo;
     }
+    
+
+    
 }
