@@ -89,16 +89,23 @@ public class PersistSymbolXML implements PersistSymbol{
     public Map<String,String> readSymbol(String symbol) {
         
         //return a copy of the data so user can play with it
+        //otherwise, if symbol does not exist in dataContainer, return null
         HashMap<String,String> data = new HashMap<>();
         Map<String,String> hashtable = dataContainer.get(symbol);
         
-        for (String key : hashtable.keySet()) {
-            data.put(key, hashtable.get(key));
-        }
+        if (hashtable != null) {
         
-        wip.put(symbol, data);
+            for (String key : hashtable.keySet()) {
+                data.put(key, hashtable.get(key));
+            }   
+        
+            wip.put(symbol, data);
          
-        return wip.get(symbol);
+            return wip.get(symbol);
+        }
+        else {
+            return null;
+        }
     }
  
     /**
@@ -109,10 +116,15 @@ public class PersistSymbolXML implements PersistSymbol{
     @Override
     public Map<String,String> createSymbol(String symbol) {
         
-        HashMap <String, String> data = new HashMap<>();
-        wip.put(symbol, data);
+        if(symbol != null && symbol.matches("[a-zA-Z0-9]+")){
+            HashMap <String, String> data = new HashMap<>();
+            wip.put(symbol, data);
         
-        return data;
+            return data;
+        }
+        else {
+            return null;
+        }
         
     }
 
