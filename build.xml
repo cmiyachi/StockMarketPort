@@ -1,0 +1,110 @@
+<?xml version="1.0" ?>
+<project name="learningant" default="package">
+
+
+       <!-- run in root project dir -->
+       <!-- ant -f <thisfilename> <targetname> -->
+
+        <property environment="env"   />
+
+
+
+	<property name="src.dir" value="src" />
+	<property name="build.dir" value="build/classes" />
+        <property name ="dist.dir" value ="dist" />
+        <property name ="jarname" value="testantjar.jar" />
+        <property name = "test.dir" value="build/test" />
+
+
+
+        <property name="persistence" value="persistence" />
+
+        <property name="build.classes.dir" value="${build.dir}/${persistence}" />
+
+        <property name="test.src.dir" value="test" />
+        <property name="junit.jar.dir" value="${env.ProgramFiles}\NetBeans 7.4\platform\modules\ext" />
+
+
+	<path id="compile.classpath">
+		<fileset dir="${dist.dir}" includes="*.jar" />	
+	</path>
+
+	<path id="test.compile.classpath">
+		<path refid="compile.classpath"/>
+
+               <!-- build/classes/packagename=classes/*.class -->
+		<pathelement location ="${build.dir}" />
+	</path>
+
+        <path id="test.classpath">
+		<path refid ="test.compile.classpath" />
+                <!-- test dir :    build/test/packagename=classes/*.class -->
+		<pathelement location="${test.dir}" />
+	</path>
+
+        <path id ="junit.classpath">
+             <fileset dir="${junit.jar.dir}" includes="*.jar" />
+        </path>
+
+
+
+
+
+	<target name="init">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${dist.dir}" />
+                <mkdir dir ="${build.classes.dir}" />
+                <mkdir dir = "${test.dir}" />
+	</target>
+
+	<target name="compile" depends="init" description="Compile Java code">
+
+               <!-- Do not include package name in the dest and src dirs -->
+		<javac srcdir="${src.dir}" destdir="${build.dir}"  includeantruntime="false" />
+	</target>
+
+	<target name="jar" depends="compile" >
+		<jar destfile="${dist.dir}/${jarname}" basedir="${build.dir}" >
+			<manifest>
+
+				<attribute name="Main-Class" value="classes.NewClass"/>
+			</manifest>
+		</jar>
+	</target>
+
+
+	<target name="run" depends="jar">
+		<java jar="${dist.dir}/${jarname}" fork="true" />
+	</target>
+
+        <target name="compile-tests" depends="jar">
+		<javac srcdir="${test.src.dir}"
+                       destdir="${test.dir}"
+		       includeantruntime="false"
+                >
+
+	               <classpath refid="test.compile.classpath" />
+                       <classpath refid="junit.classpath" />
+		</javac>
+
+        </target>
+
+
+        <target name="test1" depends="compile-tests">
+		<junit printsummary="true" haltonfailure="true">
+	        <classpath refid="test.classpath" />
+                <classpath refid="junit.classpath" />
+                <formatter type="plain" />
+                <batchtest fork="yes">
+                   <fileset dir="${test.src.dir}">
+                      <include name="*/*.java"/>
+                   </fileset>
+                </batchtest>
+                </junit>
+        </target>
+
+        <target name="main" depends="run" />	
+	
+</project>
+
+
