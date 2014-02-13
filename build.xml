@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<project name="learningant" default="package">
+<project name="StockMarketPort" default="package">
 
 
        <!-- run in root project dir -->
