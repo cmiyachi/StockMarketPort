@@ -18,11 +18,12 @@
 
 
         <property name="persistence" value="persistence" />
+        <property name="business" value="Business Logic" />
 
         <property name="build.classes.dir" value="${build.dir}/${persistence}" />
 
         <property name="test.src.dir" value="test" />
-        <property name="junit.jar.dir" value="${env.ProgramFiles}\NetBeans 7.4\platform\modules\ext" />
+        <property name="junit.jar.dir" value="lib" />
 
 
 	<path id="compile.classpath">
@@ -97,10 +98,27 @@
                 <formatter type="plain" />
                 <batchtest fork="yes">
                    <fileset dir="${test.src.dir}">
-                      <include name="*/*.java"/>
+                      <include name="*/*Persist*.java"/>
+                   </fileset>
+                   
+                </batchtest>
+                </junit>
+        </target>
+        <target name="test2" depends="compile-tests">
+		<junit printsummary="true" haltonfailure="true">
+	        <classpath refid="test.classpath" />
+                <classpath refid="junit.classpath" />
+                <formatter type="plain" />
+                <batchtest fork="yes">
+                   <fileset dir="${test.src.dir}/${business}">
+                      <include name="*.java"/>
                    </fileset>
                 </batchtest>
                 </junit>
+        </target>
+
+
+        <target name="alltests" depends="test1,test2">
         </target>
 
         <target name="main" depends="run" />	
