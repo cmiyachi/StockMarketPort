@@ -61,7 +61,12 @@
 	<target name="compile" depends="init" description="Compile Java code">
 
                <!-- Do not include package name in the dest and src dirs -->
-		<javac srcdir="${src.dir}" destdir="${build.dir}"  includeantruntime="false" />
+		<javac srcdir="${src.dir}" destdir="${build.dir}"  includeantruntime="false" 
+
+                >
+                       <classpath refid="junit.classpath" />
+
+                </javac>
 	</target>
 
 	<target name="jar" depends="compile" >
