@@ -1,0 +1,9 @@
+Testsuite: test.persistence.PersistSymbolXMLTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.031 sec
+
+Testcase: testGetSymbols took 0 sec
+Testcase: testReadSymbol took 0 sec
+Testcase: testCreateBadSymbol took 0 sec
+Testcase: testDeleteSymbol took 0.015 sec
+Testcase: testSaveSymbol took 0 sec
+Testcase: testCreateBadSymbol2 took 0 sec

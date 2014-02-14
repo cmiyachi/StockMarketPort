@@ -1,0 +1,7 @@
+Testsuite: test.business.ScrapStockDataTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.031 sec
+
+Testcase: testGetStockInfoOn took 0.015 sec
+Testcase: testGetCompanyName took 0 sec
+Testcase: testStockHistory took 0 sec
+Testcase: testGetListInfoNames took 0 sec
