@@ -165,74 +165,11 @@ public void testCreateBadSymbol2() {
 
 }
 
-/**
- * Test of readFromDB method, of class PersistSymbolXML.
- */
-@Test
-public void testReadFromDB() {
-    System.out.println("readFromDB");
-    String file = "";
-    PersistSymbolXML instance = new PersistSymbolXML();
-    instance.readFromDB(file);
-    // TODO review the generated test code and remove the default call to fail.
-    fail("The test case is a prototype.");
-}
-
-/**
- * Test of writeDB method, of class PersistSymbolXML.
- */
-@Test
-public void testWriteDB_0args() {
-    System.out.println("writeDB");
-    PersistSymbolXML instance = new PersistSymbolXML();
-    instance.writeDB();
-    // TODO review the generated test code and remove the default call to fail.
-    fail("The test case is a prototype.");
-}
-
-/**
- * Test of writeDB method, of class PersistSymbolXML.
- */
-@Test
-public void testWriteDB_String() {
-    System.out.println("writeDB");
-    String file = "";
-    PersistSymbolXML instance = new PersistSymbolXML();
-    instance.writeDB(file);
-    // TODO review the generated test code and remove the default call to fail.
-    fail("The test case is a prototype.");
-}
-
-/**
-* 
-* Method: createSymbol(String symbol) 
-* 
-*/ 
-@Test
-public void testCreateSymbol() throws Exception { 
-//TODO: Test goes here... 
-} 
 
 
-/** 
-* 
-* Method: writeDB() 
-* 
-*/ 
-@Test
-public void testWriteDB() throws Exception { 
-//TODO: Test goes here... 
-} 
 
-/** 
-* 
-* Method: writeDB(String file) 
-* 
-*/ 
-@Test
-public void testWriteDBFile() throws Exception { 
-//TODO: Test goes here... 
-} 
+
+
 
 
 } 

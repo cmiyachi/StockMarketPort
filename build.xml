@@ -13,16 +13,15 @@
 	<property name="build.dir" value="build/classes" />
         <property name ="dist.dir" value ="dist" />
         <property name ="jarname" value="testantjar.jar" />
-        <property name = "test.dir" value="build/test" />
+        <property name = "build.test.dir" value="build/classes" />
 
 
 
         <property name="persistence" value="persistence" />
         <property name="business" value="Business Logic" />
 
-        <property name="build.classes.dir" value="${build.dir}/${persistence}" />
 
-        <property name="test.src.dir" value="test" />
+        <property name="test.src.dir" value="src" />
         <property name="junit.jar.dir" value="lib" />
 
 
@@ -40,7 +39,7 @@
         <path id="test.classpath">
 		<path refid ="test.compile.classpath" />
                 <!-- test dir :    build/test/packagename=classes/*.class -->
-		<pathelement location="${test.dir}" />
+		<pathelement location="${build.test.dir}" />
 	</path>
 
         <path id ="junit.classpath">
@@ -54,8 +53,7 @@
 	<target name="init">
 		<mkdir dir="${build.dir}" />
 		<mkdir dir="${dist.dir}" />
-                <mkdir dir ="${build.classes.dir}" />
-                <mkdir dir = "${test.dir}" />
+                <mkdir dir = "${build.test.dir}" />
 	</target>
 
 	<target name="compile" depends="init" description="Compile Java code">
@@ -85,7 +83,7 @@
 
         <target name="compile-tests" depends="jar">
 		<javac srcdir="${test.src.dir}"
-                       destdir="${test.dir}"
+                       destdir="${build.test.dir}"
 		       includeantruntime="false"
                 >
 
@@ -96,27 +94,27 @@
         </target>
 
 
-        <target name="test1" depends="compile-tests">
+        <target name="test1" depends="compile">
 		<junit printsummary="true" haltonfailure="true">
 	        <classpath refid="test.classpath" />
                 <classpath refid="junit.classpath" />
                 <formatter type="plain" />
                 <batchtest fork="yes">
                    <fileset dir="${test.src.dir}">
-                      <include name="*/*Persist*.java"/>
+                      <include name="test/persistence/*.java"/>
                    </fileset>
                    
                 </batchtest>
                 </junit>
         </target>
-        <target name="test2" depends="compile-tests">
+        <target name="test2" depends="compile">
 		<junit printsummary="true" haltonfailure="true">
 	        <classpath refid="test.classpath" />
                 <classpath refid="junit.classpath" />
                 <formatter type="plain" />
                 <batchtest fork="yes">
-                   <fileset dir="${test.src.dir}/${business}">
-                      <include name="*.java"/>
+                   <fileset dir="${test.src.dir}">
+                      <include name="test/business/*.java"/>
                    </fileset>
                 </batchtest>
                 </junit>
