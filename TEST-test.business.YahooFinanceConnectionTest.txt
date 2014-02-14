@@ -1,8 +1,0 @@
-Testsuite: test.business.YahooFinanceConnectionTest
-Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.25 sec
-
-Testcase: testGetInformationList_String_String took 0.125 sec
-Testcase: testGetInformationListForSymbolFromDateToDate took 0 sec
-Testcase: testGetInfoFromURL took 0 sec
-Testcase: testGetInformationList_3args took 0.109 sec
-Testcase: testGetInformationListForSymbolInfoCode took 0 sec
