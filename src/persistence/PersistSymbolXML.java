@@ -37,8 +37,8 @@ public class PersistSymbolXML implements PersistSymbol{
      *
      */
     public PersistSymbolXML() {
-        dataContainer = new HashMap<>();
-        wip = new HashMap<>();
+        dataContainer = new HashMap();
+        wip = new HashMap();
     }
     
     /**
@@ -90,7 +90,7 @@ public class PersistSymbolXML implements PersistSymbol{
         
         //return a copy of the data so user can play with it
         //otherwise, if symbol does not exist in dataContainer, return null
-        HashMap<String,String> data = new HashMap<>();
+        HashMap<String,String> data = new HashMap();
         Map<String,String> hashtable = dataContainer.get(symbol);
         
         if (hashtable != null) {
@@ -117,7 +117,7 @@ public class PersistSymbolXML implements PersistSymbol{
     public Map<String,String> createSymbol(String symbol) {
         
         if(symbol != null && symbol.matches("[a-zA-Z0-9]+")){
-            HashMap <String, String> data = new HashMap<>();
+            HashMap <String, String> data = new HashMap();
             wip.put(symbol, data);
         
             return data;
@@ -160,7 +160,7 @@ public class PersistSymbolXML implements PersistSymbol{
                     
                     //find tags... keep tag algorithm generic here to allow flexibility for evolving strings
                     NodeList tags = element.getElementsByTagName("*");
-                    HashMap<String,String> realdata = new HashMap<>();
+                    HashMap<String,String> realdata = new HashMap();
                     for (int cnt = 0; cnt < tags.getLength(); cnt++) {
                         Element atag = (Element) tags.item(cnt);
                         String atagname = atag.getNodeName();
