@@ -37,8 +37,8 @@ public class PersistSymbolXML implements PersistSymbol{
      *
      */
     public PersistSymbolXML() {
-        dataContainer = new HashMap();
-        wip = new HashMap();
+        dataContainer = new HashMap<String,Map<String,String>>();
+        wip = new HashMap<String,Map<String,String>>();
     }
     
     /**
