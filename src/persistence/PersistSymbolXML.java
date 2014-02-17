@@ -22,27 +22,49 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+
+
 /**
- *
+ * For iteration 1, the persistence is implemented using XML.
+ * 
  * @author zyyang1
  */
 public class PersistSymbolXML implements PersistSymbol{
     
-    private Map<String, Map<String,String>> dataContainer;
-    private Map<String,Map<String,String> > wip;  //anything work in progresss
     
+    /*
+    These hash tables store the data in memory.
+    
+    The dataContainer contains the data that is read directly from the XML,
+    or that is written to the XML.
+    
+    The wip contains user data that is work in progress.
+    The wip is merged into dataContainer when the data is ready to be persisted,
+    */
+    
+    /*Data Structure of Hash Table.
+      The key is Stock Symbol Name.
+      The value is a another hash table containing Stock symbol data (string field, string data).
+    */
+    private Map<String, Map<String,String>> dataContainer;
+    private Map<String,Map<String,String> > wip;  
+    
+    
+    //The xmlfile that will persist the stock symbol data.
     private String xmlfile;
 
     /**
-     *
+     * Default Constructor.
      */
     public PersistSymbolXML() {
+        
+        //Initialize the hashes.
         dataContainer = new HashMap<String,Map<String,String>>();
         wip = new HashMap<String,Map<String,String>>();
     }
     
     /**
-     * Deletes the stock.
+     * Deletes the stock from the dataContainer data structure.
      * @param symbol
      */
     @Override
@@ -69,27 +91,27 @@ public class PersistSymbolXML implements PersistSymbol{
     }
 
     /**
-     * Get all the symbols in the db.
+     * Return to user the Set of Stock Symbol names.
      * @return
      */
     @Override
     public Set<String> getSymbols() {
         
-        
+        //Stock symbol names are the keys to the dataContainer hash table.
         return dataContainer.keySet();
         
     }
 
     /**
-     * Read a stock
-     * @param symbol
-     * @return
+     * Read stock symbol data.  Stock symbol data is represented as a hash table.
+     * @param symbol - This is the stock symbol name.
+     * @return - Stock symbol data.  Stock symbol data is represented as a hash table.
      */
     @Override
     public Map<String,String> readSymbol(String symbol) {
         
-        //return a copy of the data so user can play with it
-        //otherwise, if symbol does not exist in dataContainer, return null
+        //Return a copy of the data (based om symbol name) so user can read or update it
+        //Otherwise, if symbol name does not exist in dataContainer, return null
         HashMap<String,String> data = new HashMap<String, String>();
         Map<String,String> hashtable = dataContainer.get(symbol);
         
@@ -109,13 +131,14 @@ public class PersistSymbolXML implements PersistSymbol{
     }
  
     /**
-     * Creates a stock.
-     * @param symbol
-     * @return
+     * Creates Stock symbol data.
+     * @param symbol - This is the stock symbol name.
+     * @return - Hash table that user can modify.
      */
     @Override
     public Map<String,String> createSymbol(String symbol) {
         
+        //Make sure that stock symbol is alpha numeric.
         if(symbol != null && symbol.matches("[a-zA-Z0-9]+")){
             HashMap <String, String> data = new HashMap<String, String>();
             wip.put(symbol, data);
@@ -129,8 +152,11 @@ public class PersistSymbolXML implements PersistSymbol{
     }
 
     /**
-     * Read from XML;
-     * @param file
+     * Read all Stock symbol data from the XML file and populate the data into the dataContainer.
+     * @param file - Location to the XML.
+     * 
+     * 
+     * 
      */
     @Override
     public void readFromDB(String file) {
@@ -142,11 +168,11 @@ public class PersistSymbolXML implements PersistSymbol{
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document doc = db.parse(xmlfile);
             
+            
             NodeList nlist = doc.getElementsByTagName("stock");
             
-            //For right now, dont make xml too recursive
             
-            //get all the stock entries
+            //Get all the stock entries
             for (int count = 0 ; count < nlist.getLength(); count++) {
             
                 Node node = nlist.item(count);
@@ -158,7 +184,8 @@ public class PersistSymbolXML implements PersistSymbol{
                     
                     
                     
-                    //find tags... keep tag algorithm generic here to allow flexibility for evolving strings
+                    //Find tags... keep tag algorithm generic here to allow flexibility for evolving tag names.
+                    //That's why we use "*" to query tag names.
                     NodeList tags = element.getElementsByTagName("*");
                     HashMap<String,String> realdata = new HashMap<String, String>();
                     for (int cnt = 0; cnt < tags.getLength(); cnt++) {
@@ -186,7 +213,8 @@ public class PersistSymbolXML implements PersistSymbol{
     
 
     /**
-     * Commits changes and re-writes to the same file you read from.
+     * Overloaded method.
+     * Commits changes and re-writes to the same XML file you read from.
      */
     @Override
     public void writeDB() {
@@ -194,7 +222,7 @@ public class PersistSymbolXML implements PersistSymbol{
     }
     
     /**
-     * Commit changes and writes to the xml file.
+     * Commit changes and writes to the xml file that is specified.
      * @param file
      */
     @Override
@@ -210,7 +238,7 @@ public class PersistSymbolXML implements PersistSymbol{
             FileWriter fwt = new FileWriter(outfile.getAbsoluteFile());
             BufferedWriter bwt = new BufferedWriter(fwt);
             
-            //write contents of dataCOntainer out
+            //write contents of dataCOntainer out to the XML file
             bwt.write("<?xml version=\"1.0\"?>");
             bwt.newLine();
             
