@@ -12,7 +12,8 @@ import java.util.Date;
 import static org.junit.Assert.assertNotNull;
 
 /**
-* ScrapStockData Tester. 
+* ScrapStockData Tester.
+ * This test program unit tests the class ScrapStockData -
 * 
 * @author cmiyachi
 * @since <pre>Feb 13, 2014</pre> 
@@ -22,11 +23,18 @@ public class ScrapStockDataTest {
 
     private ScrapStockData scrapStockData;
 
+    /*
+    * This method creates the object ScrapStockData to be used in the tests
+     */
 @Before
 public void before() throws Exception {
     scrapStockData = new ScrapStockData();
 } 
 
+    /*
+    * Once we are done with the test:
+    *  This sets the object to null so it will be garbage collected
+     */
 @After
 public void after() throws Exception {
     scrapStockData = null;
@@ -34,7 +42,8 @@ public void after() throws Exception {
 
 /** 
 * 
-* Method: stockHistory(String Symbol, Date fromDate, Date toDate) 
+* Method: stockHistory(String Symbol, Date fromDate, Date toDate)
+ * This tests the obtaining the stock history on a symbol from one date to another
 * 
 */ 
 @Test
@@ -66,7 +75,8 @@ public void testGetCompanyName() throws Exception {
 
 /** 
 * 
-* Method: getStockInfoOn(String Symbol, String infoName) 
+* Method: getStockInfoOn(String Symbol, String infoName)
+ *  This tests that a symbol gives the correct company name
 * 
 */ 
 @Test
@@ -77,18 +87,5 @@ public void testGetStockInfoOn() throws Exception {
     assertNotNull("Info on Xerox ", info);
 } 
 
-
-/** 
-* 
-* Method: getListInfoNames() 
-* 
-*/ 
-@Test
-public void testGetListInfoNames() throws Exception {
-
-    // TODO:  Not sure this needs to be tested as method is private
-
-
-} 
 
 } 
