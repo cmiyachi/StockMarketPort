@@ -68,7 +68,7 @@ public class PersistSymbolMysql implements PersistSymbol{
        //Get a description of the table we will be using
        //As columns could have been added
        //make sure that connection is possible
-        
+       boolean check = this.checkIfTableExists(tablename);
         
     }
     
@@ -271,58 +271,9 @@ public class PersistSymbolMysql implements PersistSymbol{
     }
 
     
-    /**
-     * Read from the database;
-     * @param dborfile
-     * 
-     * Loads contents of database.table into memory.
-     * Should be ok, as the tables are not that large anyway.
-     */
-    public void readFromDB(String dborfile){
+
     
-        try {
-            Connection sqlcon = DriverManager.getConnection(url, user, password);
-            
-            boolean existornot = this.checkIfTableExists(sqlcon);
-            System.out.println(existornot);
-            
-            //read
-            try {
-                Statement statement = sqlcon.createStatement();
-                ResultSet resultset = statement.executeQuery("select * from " + tablename);
-                
-                
-                while(resultset.next()) {
-                    //System.out.println("pk:" + resultset.getString(pkname));
-                    
-                    ResultSetMetaData rsmd = resultset.getMetaData();
-                    
-                    
-                    
-                    StockSymbol symbol = new StockSymbol( resultset.getString(pkname));
-                    int numcol = rsmd.getColumnCount();
-                    
-                    for (int count = 1; count <= numcol; count++) {
-                        //System.out.println(rsmd.getColumnName(count));
-                        String column = rsmd.getColumnName(count);
-                        String value = resultset.getString(column);
-                        symbol.setPair(column, value);
-                        
-                    }
-                    
-                }
-                
-            }
-            finally {
-                sqlcon.close();
-            }
-        }
-        catch (Exception doh) {
-            System.out.println(doh.getMessage());
-        }
-       
-    
-    }
+         
     
     private String generateUpdateCmd(StockSymbol savesymbol) {
         String result = null;
@@ -446,8 +397,17 @@ public class PersistSymbolMysql implements PersistSymbol{
     }
     
     //Overloaded 
-    private boolean checkIfTableExists(){
-        return false;
+    private boolean checkIfTableExists(String tablename){
+        
+        boolean result = false;
+        try {
+            Connection sqlcon = DriverManager.getConnection(url, user, password);
+            result = checkIfTableExists(sqlcon);
+        }
+        catch(Exception doh) {
+            
+        }
+        return result;
     }
     
     //Overloaded
@@ -540,5 +500,17 @@ public class PersistSymbolMysql implements PersistSymbol{
      * @param dborfile
      */
     public void writeDB(String dborfile){}
+  
     
+        /**
+     * Read from the database;
+     * @param dborfile
+     * 
+     * Kept for backward compatibility with interface
+     * Loads contents of database.table into memory.
+     * Should be ok, as the tables are not that large anyway.
+     */
+    public void readFromDB(String dborfile){}
 }
+
+   
