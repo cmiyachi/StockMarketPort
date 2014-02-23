@@ -41,9 +41,9 @@ public class HistoryReportForm extends JFrame{
         final SymbolSearch ss = new SymbolSearch();
         lst = ss.getNamesList();
         int howMany = lst.size();
-        String[] zhopa = new String[howMany];
-        lst.toArray(zhopa);
-        final JComboBox jcb = new JComboBox(zhopa);
+        String[] str = new String[howMany];
+        lst.toArray(str);
+        final JComboBox jcb = new JComboBox(str);
         final JTextField jt = new JTextField("                                                   ");
 
         this.setTitle("30-Day History Report");
