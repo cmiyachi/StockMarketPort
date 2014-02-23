@@ -31,7 +31,7 @@ public class YahooFinanceConnection {
          URLConnection urlConnection = url.openConnection();
          BufferedReader in = new BufferedReader(new InputStreamReader( urlConnection.getInputStream()));
          String inputLine;
-        while ((inputLine = in.readLine()) != null)   listStr.add(inputLine);
+        while ((inputLine = in.readLine()) != null) listStr.add(inputLine);
         in.close();
       }
       catch(Exception e){}
@@ -64,10 +64,10 @@ public class YahooFinanceConnection {
         listInfo = getInfoFromURL("http://ichart.yahoo.com/table.csv?s="+
                 
                 Symbol + 
-                "&a="+( fromMonth - 1)+
+                "&a="+ fromMonth +
                 "&b="+ fromDay +
                 "&c="+ fromYear + 
-                "&d="+(toMonth - 1 )+
+                "&d="+ toMonth +
                 "&e="+ toDay +
                 "&f=" + toYear + "&g=d&ignore=.csv");
        
@@ -92,7 +92,8 @@ public class YahooFinanceConnection {
        
         return listInfo;
     }
-    
+
+
 
     
 }
