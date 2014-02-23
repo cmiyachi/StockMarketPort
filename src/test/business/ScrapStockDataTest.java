@@ -82,7 +82,7 @@ public void testGetCompanyName() throws Exception {
 @Test
 public void testGetStockInfoOn() throws Exception { 
 
-    String info = scrapStockData.getStockInfoOn("XRX","abp5");
+    String info = scrapStockData.getStockInfoOn("XRX","s0p0c1p2");
     System.out.println("info for Xerox: " + info);
     assertNotNull("Info on Xerox ", info);
 } 
