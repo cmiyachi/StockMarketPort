@@ -63,7 +63,7 @@ public class SymbolSearch {
 
 
         listNames = new ArrayList<String>(mapNameSymbol.keySet());
-        Collections.sort(listNames);
+        Collections.sort(listNames, String.CASE_INSENSITIVE_ORDER);
     };
 
     /*
