@@ -1,9 +1,16 @@
 import javax.swing.*;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Set;
+
 import business.*;
+import persistence.PersistSymbol;
+import persistence.PersistSymbolXML;
 
 /**
  * Created by cmiyachi on 2/19/14.
@@ -12,20 +19,39 @@ import business.*;
 /*
 * These are the SWING items on the GUI
  */
-public class EnterStock {
+public class EnterStock  {
     private JPanel EnterStockPanel; // the main panel of the GUI
     private JLabel labelStockSymbol;  // this is the label for the stock symbol text box
     private JTextField textFieldStockSymbol; // this is the text box for entering the stock symbol
     private JComboBox comboBoxStockSymbol; // this is a list of stocks that are saved
-    private JTextArea textAreaStockData;  //  this is the result of the look up - all the data of the stock is shown here
     private JButton buttonLookUp;  //  this is a button to look up the data on the stock in the text box
     private JButton buttonAdd;    // this button adds the symbol in the text box to the combo box / list to be saved
     private JButton buttonRemove;// this button removes the symbol in the text box to the combo box and from list to be saved
+    private JScrollPane scrollPaneTable;
+    private JTable stockInfoTable;  // this is the table where data on the stock is displayed
+    private String[] columnNames = {"Symbol", "Price", "Change", "Percent Change"};  // the items we will get about the stock
+    private String[][] data = new String[30][4];  // the data obtained about the stock
+    private DefaultTableModel model;  // the model to put the table in
+    private int currentRow = 0;
 
 
-    public EnterStock() {
+    public EnterStock()  {
 
-        // listener for add button - this is called when the user presses the "Add" button
+        // initialize the tables to be used in the UI and also the text field for the data obtained
+        model = new DefaultTableModel(data, columnNames);
+        stockInfoTable = new JTable(model);
+        scrollPaneTable.getViewport ().add (stockInfoTable);
+
+        // load all the stock symbols that were persisted
+        PersistSymbol persistence = new PersistSymbolXML();
+        Set<String> symbols = persistence.getSymbols();
+
+        for (String s : symbols)
+        {
+            comboBoxStockSymbol.addItem(s);
+        }
+
+            // listener for add button - this is called when the user presses the "Add" button
          buttonAdd.addActionListener(new ActionListener()
          {
             @Override
@@ -39,20 +65,24 @@ public class EnterStock {
                     int theIndex = comboBoxStockSymbol.getSelectedIndex();
                     if (!(theIndex > -1))
                     {
+                        PersistSymbol persistence = new PersistSymbolXML();
                         comboBoxStockSymbol.addItem(stockSymbol);
+                        persistence.saveSymbol(stockSymbol);
                     }
                 }
             }
           });
 
-
+        // this is the listener for the remove button which will remove the item from the list
          buttonRemove.addActionListener(new ActionListener()
          {
             @Override
             public void actionPerformed(ActionEvent e)
             {
                 String currentSymbol = comboBoxStockSymbol.getSelectedItem().toString();
+                PersistSymbol persistence = new PersistSymbolXML();
                 comboBoxStockSymbol.removeItem(currentSymbol);
+                persistence.deleteSymbol(currentSymbol);
             }
         });
         /*
@@ -81,21 +111,27 @@ public class EnterStock {
                 ScrapStockData stockInfo = new ScrapStockData();
                 // TODO what happens if the stock Symbol is unknown?
                 // Get the info on the stock
-                String companyName = stockInfo.getCompanyName(stockSymbol);
-                // put the information in the large text window
-                textAreaStockData.setText(companyName);
-
-
+                // see https://code.google.com/p/yahoo-finance-managed/wiki/enumQuoteProperty for meaning
+                // of the string to obtain info on stocks
+                String info = stockInfo.getStockInfoOn(stockSymbol,"s0p0c1p2");
+                for (int j = 0; j < 4; j++) {
+                    model.setValueAt(info.split(",")[j].replaceAll("^\"|\"$", ""), currentRow, j);
+                }
+                currentRow++;
             }
         });
+
     }
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("EnterStock");
+        frame.setTitle("The Best Stock Finder");
         frame.setContentPane(new EnterStock().EnterStockPanel);
+        frame.setSize(800,600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
+        // frame.pack();
         frame.setVisible(true);
     }
+
 
 }
