@@ -42,7 +42,7 @@ public class EnterStock  {
         // initialize the tables to be used in the UI and also the text field for the data obtained
         model = new DefaultTableModel(data, columnNames);
         stockInfoTable = new JTable(model);
-        scrollPaneTable.getViewport ().add (stockInfoTable);
+        scrollPaneTable.getViewport().add(stockInfoTable);
 
         // load all the stock symbols that were persisted
         persistence = new PersistSymbolXML();
