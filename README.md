@@ -53,3 +53,7 @@ Our Junit tests are in place.  We have a build.xml file that builds and runs the
 		a.  MySQL implementation using JDBC
 		
 		
+Iteration 2
+    First Swing iteration complete
+    Code coverage added
+    Persistence in both XML and MySQL
