@@ -28,7 +28,7 @@ public class EnterStock  {
     private JButton buttonLookUp;  //  this is a button to look up the data on the stock in the text box
     private JButton buttonAdd;    // this button adds the symbol in the text box to the combo box / list to be saved
     private JButton buttonRemove;// this button removes the symbol in the text box to the combo box and from list to be saved
-    private JScrollPane scrollPaneTable;
+    private JScrollPane scrollPaneTable; // this is the scroll panel where the table goes
     private JTable stockInfoTable;  // this is the table where data on the stock is displayed
     private String[] columnNames = {"Symbol", "Price", "Change", "Percent Change"};  // the items we will get about the stock
     private String[][] data = new String[30][4];  // the data obtained about the stock
