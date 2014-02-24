@@ -79,63 +79,6 @@ public class PersistSymbolFactory {
     }
     
     
-        public static void readPropertiesFile() {
-        //The file shoud be relative to this app
-        //XML format
-        
-        File basedir = new File (".");
-        
-        try {
-            String path = basedir.getCanonicalPath();
-            System.out.println("Iam here:" + path);
-            String propfile = path + "\\mysqlconn.xml";
-            
-            File xmlfile = new File(propfile);
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            Document doc = db.parse(xmlfile);
-            
-            NodeList nlist = doc.getElementsByTagName("connection");
-            
-            
-            //Get the <connection> properties
-            for (int count = 0; count < nlist.getLength(); count++) {
-                Node node =nlist.item(count);
-            
-                if(node.getNodeType()==Node.ELEMENT_NODE){
-                    
-                    Element element = (Element) node;
-                    String connid = element.getAttribute("id");
-                    
-                    //slurp in all the connection properties like password, user, url
-                    NodeList tags = element.getElementsByTagName("*");
-                    
-                    for (int cnt = 0; cnt < tags.getLength(); cnt++) {
-                        Element atag = (Element) tags.item(cnt);
-                        String atagname = atag.getNodeName();
-                        
-                       
-                        if(atagname.equals("user")){
-                            user=element.getElementsByTagName(atagname).item(0).getTextContent();
-                        }
-                        else if (atagname.equals("password")){
-                            password=element.getElementsByTagName(atagname).item(0).getTextContent();
-                        }
-                        else if (atagname.equals("url")){
-                            url=element.getElementsByTagName(atagname).item(0).getTextContent();
-                        }
-   
-                    }
-                    
-                }  
-              
-                
-            }
-        }
-        catch (Exception doh) {
-            System.out.println(doh.getMessage());
-        }
-    }
         
         
     //use enum for the arguement     
