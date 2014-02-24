@@ -6,6 +6,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Map;
 import java.util.Set;
 
 import business.*;
@@ -32,8 +33,9 @@ public class EnterStock  {
     private String[] columnNames = {"Symbol", "Price", "Change", "Percent Change"};  // the items we will get about the stock
     private String[][] data = new String[30][4];  // the data obtained about the stock
     private DefaultTableModel model;  // the model to put the table in
-    private int currentRow = 0;
-
+    private int currentRow = 0;  // the current row of the table to write text data to
+    private PersistSymbol persistence ; // a persistence object to save stock symbols to
+    public final String xmlFile; // the name of the file to save the stock symbols to
 
     public EnterStock()  {
 
@@ -43,7 +45,10 @@ public class EnterStock  {
         scrollPaneTable.getViewport ().add (stockInfoTable);
 
         // load all the stock symbols that were persisted
-        PersistSymbol persistence = new PersistSymbolXML();
+        persistence = new PersistSymbolXML();
+        xmlFile = "C:\\Temp\\StockSymbolData.xml";
+
+        persistence.readFromDB(xmlFile);
         Set<String> symbols = persistence.getSymbols();
 
         for (String s : symbols)
@@ -65,9 +70,12 @@ public class EnterStock  {
                     int theIndex = comboBoxStockSymbol.getSelectedIndex();
                     if (!(theIndex > -1))
                     {
-                        PersistSymbol persistence = new PersistSymbolXML();
+
                         comboBoxStockSymbol.addItem(stockSymbol);
+                        Map<String,String> obj = persistence.createSymbol(stockSymbol);
+                        // obj.put("", "");
                         persistence.saveSymbol(stockSymbol);
+                        persistence.writeDB(xmlFile);
                     }
                 }
             }
@@ -80,9 +88,9 @@ public class EnterStock  {
             public void actionPerformed(ActionEvent e)
             {
                 String currentSymbol = comboBoxStockSymbol.getSelectedItem().toString();
-                PersistSymbol persistence = new PersistSymbolXML();
                 comboBoxStockSymbol.removeItem(currentSymbol);
                 persistence.deleteSymbol(currentSymbol);
+                persistence.writeDB(xmlFile);
             }
         });
         /*
@@ -127,9 +135,10 @@ public class EnterStock  {
         JFrame frame = new JFrame("EnterStock");
         frame.setTitle("The Best Stock Finder");
         frame.setContentPane(new EnterStock().EnterStockPanel);
-        frame.setSize(800,600);
+        // frame.setSize(800,600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        // frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.pack();
         frame.setVisible(true);
     }
 
