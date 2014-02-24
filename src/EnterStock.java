@@ -39,10 +39,7 @@ public class EnterStock  {
 
     public EnterStock()  {
 
-        // initialize the tables to be used in the UI and also the text field for the data obtained
-        model = new DefaultTableModel(data, columnNames);
-        stockInfoTable = new JTable(model);
-        scrollPaneTable.getViewport().add(stockInfoTable);
+
 
         // load all the stock symbols that were persisted
         persistence = new PersistSymbolXML();
@@ -135,7 +132,6 @@ public class EnterStock  {
         JFrame frame = new JFrame("EnterStock");
         frame.setTitle("The Best Stock Finder");
         frame.setContentPane(new EnterStock().EnterStockPanel);
-        // frame.setSize(800,600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         frame.pack();
@@ -143,4 +139,11 @@ public class EnterStock  {
     }
 
 
+    private void createUIComponents() {
+        // initialize the tables to be used in the UI and also the text field for the data obtained
+        model = new DefaultTableModel(data, columnNames);
+        stockInfoTable = new JTable(model);
+        scrollPaneTable = new JScrollPane(stockInfoTable);
+       // scrollPaneTable.getViewport().add(stockInfoTable);
+    }
 }
