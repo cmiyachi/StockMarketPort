@@ -6,12 +6,21 @@
 
 package persistence;
 
+import java.io.File;
 import java.util.Map;
 import java.util.Set;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 
 
 /**
@@ -20,56 +29,83 @@ import java.util.List;
  */
 public class PersistSymbolMysql implements PersistSymbol{
 
+    
+    //Databse Connection Settings
     private String url ;
     private String user;
     private String password;
     
+    //Stock Table Settings
     private String pkname;
     private String dbname;
     private String tablename;
     
-    //Remove later//
-    private String testtablename;
-    private String testpkname;
-    private List<String> testColumnNames;
-    //////
+    //User Table Settings
+    private String currentuser ;
+    private String tablenameusers ;
+   
     
-    private Map<String, StockSymbol> dataContainer;
+    //Join table settings
+    private String tablenamejoin;
+    
     private Map<String, StockSymbol> wip;
     
-    private List<String> changed;
-    private List<String> deleted;
+    
     private List<String> columnNames;
     
     private int varchar;
     
+    private Map<String, Map<String,String>> connections;
+    
+    private boolean productionMode;
+    private boolean testMode;
+    
     public PersistSymbolMysql() {
-        url = "jdbc:mysql://localhost/umass308dev";
+        
+        
+        url = "jdbc:mysql://localhost:3306/umass308dev";
         user = "root";
         password = "root";
         
+        //stocks table
+        tablename = "production_table"; //default table used to store stocks (ie. stock symbol)
+        //primary key field used in the database for stocks
         pkname = "stockidpk";
-        dbname = "x";
-        tablename = "stocks";
         
-        testtablename = "stocks";
-        testpkname = "stockidpk";
+        //users table (thinking ahead for multiple users)
+        tablenameusers = "users";
+        currentuser = "default";
         
         
-        dataContainer = new HashMap<>();
+        // default joined table name by joining users and stocks (thinking ahead for multiple users)
+        tablenamejoin = "join_"+ tablenameusers +"_" + tablename;
+        
+        
+        
+        
+        //store any WorkInProgress Stock Symbols into memory
         wip = new HashMap<>();
-        changed = new ArrayList<>();
-        deleted = new ArrayList<>();
+        
+         
         columnNames = new ArrayList<>();
+        connections = new HashMap<String, Map<String, String>>();
         
         
        varchar = 60;
        
-       //Get a description of the table we will be using
-       //As columns could have been added
-       //make sure that connection is possible
-       boolean check = this.checkIfTableExists(tablename);
+       
+       
         
+       productionMode = true;
+       testMode = false;
+        
+       //load up connection properties
+       this.readConnectionProperties();
+       this.setConnectionProperties();
+       
+     
+      
+      
     }
     
     public PersistSymbolMysql(String user, String password) {
@@ -79,7 +115,27 @@ public class PersistSymbolMysql implements PersistSymbol{
     }
     
     
+    public void setTestMode() {
+        productionMode = false;
+        testMode = true;
+        tablenamejoin = "join_"+ tablenameusers +"_" + tablename;
+        
+        //reading override file trumps the connection settings
+        this.setConnectionProperties();
+         
+        
+    }
     
+    public void setProductionMode() {
+        productionMode = true;
+        testMode = false;
+        tablenamejoin = "join_"+ tablenameusers +"_" + tablename;
+        
+        //reading the override file trumps the connection settings
+        this.setConnectionProperties();
+         
+         
+    }
     
         /**
      * Read a symbol.
@@ -88,6 +144,7 @@ public class PersistSymbolMysql implements PersistSymbol{
      */
     public Map<String,String> readSymbol(String symbol){
     
+        
         boolean checkname = this.checkSymbolName(symbol);
         
         StockSymbol readsymbol = null;
@@ -135,7 +192,7 @@ public class PersistSymbolMysql implements PersistSymbol{
                
         }
         catch(Exception doh) {
-                System.out.println(doh.getMessage());
+                System.out.println("-E- readSymbol:" + doh.getMessage());
         }
         
        
@@ -181,7 +238,7 @@ public class PersistSymbolMysql implements PersistSymbol{
     public void deleteSymbol(String symbol) {
         boolean nameok  = this.checkSymbolName(symbol);
         
-        boolean existok  = this.checkIfRecordExists(symbol);
+        boolean existok  = this.checkIfRecordExists(symbol); //check if this stockid actually exists
         if (existok && nameok) {
             
             try{
@@ -190,14 +247,34 @@ public class PersistSymbolMysql implements PersistSymbol{
                 String deletecom ="delete from " + tablename + " where " + pkname + "=\"" + symbol + "\"";
                 Statement statement = sqlcon.createStatement();
                 boolean resultset = statement.execute(deletecom);
-                        
+                
+                //once this symbol is removed from the stocks table, remove it from the join table
+                deleteSymbolJoin(symbol, sqlcon);
+                
                 sqlcon.close();
             }
             catch(Exception doh) {
-                System.out.println(doh.getMessage());
+                System.out.println("-E- deleteSymbol:" + doh.getMessage());
             }
         }
     
+    }
+    
+    //Once this symbol is removed, the join table should not contain contain it either
+    public void deleteSymbolJoin(String symbol, Connection sqlcon) {
+        
+         
+        
+        String deletecom ="delete from " + tablenamejoin + " where userid" + "=\"" + currentuser+ "\"" +
+                " and stockid=" + "\"" + symbol +"\"";
+        
+        try{
+            Statement statement = sqlcon.createStatement();
+            statement.execute(deletecom);
+        }
+        catch(Exception doh) {
+            System.out.println("-E- deleteSymbolJoin:" + doh.getMessage());
+        }
     }
 
     
@@ -207,17 +284,28 @@ public class PersistSymbolMysql implements PersistSymbol{
      */
     public void saveSymbol(String symbol){
     
+        //Check if table exists and allow to create table if it doesn't exist
+        checkIfTableExists(tablename); //ie. the stocks table
+        checkOrCreateUsersTable(); // users
+        checkOrCreateJoinTable();//joined users and stocks
+        
+        //check before save whether user is in the database
+        boolean checkuser = checkIfUserExists(currentuser);
+        
+        
         
         StockSymbol savesymbol = wip.get(symbol);
         Connection sqlcon;
         
   
+        boolean needcreatejoin = false;
         
         try{
             sqlcon = DriverManager.getConnection(url, user, password);
     
             //Check the fields used by savesymbol against the columns in the sql table
             //Sql table must create any needed fields
+             
             checkAndCreateMissingColumnNames(sqlcon, savesymbol);
             
      
@@ -226,6 +314,7 @@ public class PersistSymbolMysql implements PersistSymbol{
            if (! checkIfRecordExists(sqlcon, savesymbol)) {
             
                command = generateCreateCmd(savesymbol);
+               needcreatejoin = true;
              
            }
                 
@@ -238,17 +327,37 @@ public class PersistSymbolMysql implements PersistSymbol{
             
            Statement statement = sqlcon.createStatement();
            statement.execute(command);
-           System.out.println(command);
+           
+           if (needcreatejoin) {
+               //persist to the join table too since you are creating this record as a currentuser
+               saveSymbolInJoinTable(symbol, sqlcon);
+           }
+           
            sqlcon.close();
         }
         catch(Exception doh) {
-            System.out.println("-E-" + doh.getMessage());
+            System.out.println("-E- saveSymbol:" + doh.getMessage());
         }
      
          
     
     }
     
+    private void saveSymbolInJoinTable(String symbol, Connection sqlcon) {
+        
+         String createuser = "insert into " + tablenamejoin +" (userid,stockid)  values (" 
+                        + "\"" + currentuser + "\"," +   "\"" + symbol+ "\"" + ")";
+             
+         try{
+            Statement statement = sqlcon.createStatement();
+            statement.execute(createuser);}
+         catch (Exception doh) {
+            System.out.println("-E- saveSymbolInJoinTable:" + doh.getMessage());
+         }
+        
+    }
+    
+   
     
     private boolean checkSymbolName(String symbolname) {
         boolean results = true;
@@ -267,7 +376,23 @@ public class PersistSymbolMysql implements PersistSymbol{
      * @return
      */
     public Set<String>  getSymbols(){
-        return dataContainer.keySet();
+     
+        String sqlcommand = "select * from " + tablename ;
+        Set <String> result  = new HashSet<>();
+        try {
+            Connection sqlcon = DriverManager.getConnection(url, user, password);
+            Statement statement = sqlcon.createStatement();
+            ResultSet resultset = statement.executeQuery(sqlcommand);
+            while(resultset.next()) {
+                result.add( resultset.getString(pkname));
+            }
+        }
+        catch(Exception doh) {
+            System.out.println("-E- checkIfRecordExists:" + doh.getMessage());
+        }
+        
+        
+        return result;
     }
 
     
@@ -371,7 +496,7 @@ public class PersistSymbolMysql implements PersistSymbol{
             sqlcon.close();
         }
         catch(Exception doh) {
-            System.out.println(doh.getMessage());
+            System.out.println("-E- checkIfRecordExists:" + doh.getMessage());
         }
         
         return result;
@@ -391,21 +516,58 @@ public class PersistSymbolMysql implements PersistSymbol{
             }
         }
         catch(Exception doh) {
-            System.out.println(doh.getMessage());
+            System.out.println("-E- checkIfRecordExists:" + doh.getMessage());
         }
         return result;
     }
     
-    //Overloaded 
+    
+    
+    
+    
+    private boolean checkIfUserExists(String someuser) {
+        boolean result = false;
+        
+        try{
+            Connection sqlcon = DriverManager.getConnection(url, user, password);
+            String sqlcommand = "select * from " + tablenameusers + " where userid" + "=\"" + someuser + "\"";
+            
+            Statement statement = sqlcon.createStatement();
+            ResultSet resultset = statement.executeQuery(sqlcommand);
+            while(resultset.next()) {
+                result = true;
+            }
+            
+            if (!result) {
+                //create the user
+                String createuser = "insert into " + tablenameusers +" (userid,username)  values (" 
+                        + "\"" + currentuser + "\"," +   "\"" + currentuser + "\"" + ")";
+                
+                statement.execute(createuser);
+            }
+            sqlcon.close();
+        }
+        
+        catch(Exception doh){
+            System.out.println("-E- checkIfUserExists:" + doh.getMessage());
+        }
+        return result;
+        
+        
+    }
+    
+    //Overloaded ....
     private boolean checkIfTableExists(String tablename){
         
         boolean result = false;
         try {
+            
+            
             Connection sqlcon = DriverManager.getConnection(url, user, password);
             result = checkIfTableExists(sqlcon);
         }
         catch(Exception doh) {
-            
+            System.out.println("-E- checkIfTableExists:" + doh.getMessage());
         }
         return result;
     }
@@ -424,8 +586,8 @@ public class PersistSymbolMysql implements PersistSymbol{
             else {
                 //create the table
                 String createtable = "create table " + this.tablename + " (" +
-                                        testpkname + " varchar(" + varchar + ") not null, " +
-                                        "primary key (" + testpkname + ")"
+                                        pkname + " varchar(" + varchar + ") not null, " +
+                                        "primary key (" + pkname + ")"
                                                                           + " )";
                 
                 Statement statement = sqlcon.createStatement();
@@ -433,47 +595,116 @@ public class PersistSymbolMysql implements PersistSymbol{
             }
         }
         catch(Exception doh) {
-            System.out.println("-e checkIfTableExists- " + doh.getMessage());
+            System.out.println("-E- checkIfTableExists: " + doh.getMessage());
         }
         
         return result;
     }
     
     
+    private void checkOrCreateUsersTable() {
+        boolean result = false;
+        
+     
+        try {
+            Connection sqlcon = DriverManager.getConnection(url, user, password);
+            DatabaseMetaData dmd = sqlcon.getMetaData();
+            ResultSet tables = dmd.getTables(null, null, tablenameusers, null);
+            if (tables.next()) {
+                result = true;
+               
+            }
+            else {
+                //create the table
+                String createtable = "create table " + tablenameusers + " (" +
+                                        "userid" + " varchar(" + varchar + ") not null, " +
+                                        "username" + " varchar(" + varchar + ") not null, " +
+                                        "primary key (" + "userid" + ")"
+                                                                          + " )";
+                
+                Statement statement = sqlcon.createStatement();
+                statement.execute(createtable);
+            }
+            sqlcon.close();
+        }
+        catch(Exception doh) {
+            System.out.println("-E- checkOrCreateUsersTable: " + doh.getMessage());
+        }
+    }
+    
+    
+    
+    
+   private void checkOrCreateJoinTable() {
+        boolean result = false;
+        
+     
+        try {
+            Connection sqlcon = DriverManager.getConnection(url, user, password);
+            DatabaseMetaData dmd = sqlcon.getMetaData();
+            ResultSet tables = dmd.getTables(null, null, tablenamejoin, null);
+            if (tables.next()) {
+                result = true;
+               
+            }
+            else {
+                //create the table
+                String createtable = "create table " + tablenamejoin + " (" +
+                                        "userid" + " varchar(" + varchar + ") not null, " +
+                                        "stockid" + " varchar(" + varchar + ") not null, " +
+                                        "primary key (" + "userid, stockid" + ")"
+                                                                          + " )";
+                
+                Statement statement = sqlcon.createStatement();
+                statement.execute(createtable);
+            }
+        }
+        catch(Exception doh) {
+            System.out.println("-E- checkOrCreateUsersTable: " + doh.getMessage());
+        }
+    }
+    
+    
+        
+    
     //Current development scenario allows developer to add columns names as they see fit
     //So need to see what columns have been added by the developer
-    private void checkColumnNames(Connection sqlcon) {
+    private List<String> checkColumnNames(Connection sqlcon) {
 
-        System.out.println("CheckColumnNames:" + sqlcon);
-        System.out.println("tablename:" + tablename);
+        ArrayList<String> columnList = new ArrayList<>();
+       
         try{
             DatabaseMetaData dmd = sqlcon.getMetaData();
             //wildcarding in sql is %
             ResultSet columns = dmd.getColumns(null, "%", tablename, "%");
             while(columns.next()){
                 String column = columns.getString("COLUMN_NAME");
-                columnNames.add(column);
-                System.out.println("column:" + column);
+                columnList.add(column);
+                
             }
         }
         catch(Exception doh) {
-            System.out.println("-doh-" + doh.getMessage());
+            System.out.println("-E- checkColumnNames:" + doh.getMessage());
         }
+        
+        return columnList;
     }
     
     private void checkAndCreateMissingColumnNames(Connection sqlcon, StockSymbol savesymbol) {
          
         try{
+            
+             List<String> columnList = this.checkColumnNames(sqlcon);
              for(String symbolcolumn : savesymbol.getAllColumnNames()){
-                if (! this.columnNames.contains(symbolcolumn)){
-                    String addcolumn = "alter table " + this.testtablename +
+                if (! columnList.contains(symbolcolumn)){
+                    String addcolumn = "alter table " + this.tablename +
                                        " add " + symbolcolumn + 
                                        " varchar(" + this.varchar + ")";
                     
-                    System.out.println("add column:" + addcolumn);
+                    
                     Statement statement = sqlcon.createStatement();
                     statement.execute(addcolumn);
-                    columnNames.add(symbolcolumn);
+                     
                     
                   
                     
@@ -482,12 +713,90 @@ public class PersistSymbolMysql implements PersistSymbol{
             }
         }
         catch(Exception doh) {
-            System.out.println(doh.getMessage());
+            System.out.println("-E- checkAndCreateMissingColumnNames:" + doh.getMessage());
         }
     }
     
+    
+    
+    public boolean checkSqlConnection() {
+        
+        boolean result = false;
+        
+        try {
+            Connection sqlcon = DriverManager.getConnection(url, user, password);
+            if (sqlcon != null) {
+                result = true;
+                sqlcon.close();
+            }
+            
+        }
+        catch(Exception doh){
+            System.out.println("-E- checkSqlConnection:" + doh.getMessage());
+        }
+        
+        return result;
+    }
+    
+    
+    private void readConnectionProperties() {
+        PropertiesParserForMysql properties = new PropertiesParserForMysql();
+        connections = properties.getConnectionTable();
+        
+        
+        
+       
+    }
+    
+    private void setConnectionProperties() {
+        String selection = (productionMode) ? "PRODUCTION" : "TEST";
+        
+        if (connections.containsKey(selection)) {
+            for (String key : connections.get(selection).keySet()){
+                if (key.equals("url")){
+                    
+                    url = connections.get(selection).get(key);
+                }
+                else if (key.equals("user")){
+                  
+                    user = connections.get(selection).get(key);
+                }
+                else if (key.equals("password")){
+                    
+                    password = connections.get(selection).get(key);
+                }
+                else if (key.equals("tablename")){
+                    
+                    tablename = connections.get(selection).get(key);
+                }
+                else if (key.equals("tablenamejoin")) {
+                    tablenamejoin = connections.get(selection).get(key);
+                }
+                else if (key.equals("tablenameusers")) {
+                    tablenameusers = connections.get(selection).get(key);
+                }
+                
+            }
+        }
+        
+        
+        
+    }
+    
  
-
+    public void setPassword(String password){
+        this.password = password;
+    }
+    
+    public void setUser(String user){
+        this.user = user;
+    }
+    
+    public void setUrl(String url){
+        this.url = url;
+    }
+    
+    
     
     /** Kept for backward compability with interface
      * Re-Write to database that you read from;

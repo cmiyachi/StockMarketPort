@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<mysql>
+	<connection id="PRODUCTION">
+		<user>root</user>
+		<password>root</password>
+		<url>jdbc:mysql://localhost:3306/umass308dev</url>
+                <tablename>stocks</tablename>
+                <tablenameusers>users</tablenameusers>
+		<tablenamejoin>users_stocks</tablenamejoin>
+	</connection>
+	<connection id="TEST">
+		<user>root</user>
+		<password>root</password>
+		<url>jdbc:mysql://localhost:3306/umass308dev</url>
+                <tablename>teststocks</tablename>
+                <tablenameusers>testusers</tablenameusers>
+		<tablenamejoin>testusers_teststocks</tablenamejoin>
+	</connection>
+</mysql>

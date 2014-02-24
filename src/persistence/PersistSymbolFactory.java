@@ -6,8 +6,15 @@
 
 package persistence;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  *
@@ -15,9 +22,43 @@ import java.sql.DriverManager;
  */
 public class PersistSymbolFactory {
     
-    private static String user = "root";
-    private static String password = "root";
-    private static String url = "jdbc:mysql://localhost/umass308dev";
+    
+    //Only used for Mysql implementation
+    private static String user = "init";
+    private static String password = "init";
+    private static String url = "init";
+    private static String table = "init";
+
+    public static enum modes{
+        PRODUCTION, TEST
+    }
+    
+    
+    public static String getUser() {
+        return user;
+    }
+
+    public static String getPassword() {
+        return password;
+    }
+
+    public static String getUrl() {
+        return url;
+    }
+
+    public static void setUser(String user) {
+        PersistSymbolFactory.user = user;
+    }
+
+    public static void setPassword(String password) {
+        PersistSymbolFactory.password = password;
+    }
+
+    public static void setUrl(String url) {
+        PersistSymbolFactory.url = url;
+    }
+    
+    
     
     
     
@@ -31,18 +72,39 @@ public class PersistSymbolFactory {
     public static boolean checkSqlConnection() {
         
         boolean result = false;
-        
-        try {
-            Connection sqlcon = DriverManager.getConnection(url, user, password);
-            if (sqlcon != null) {
-                result = true;
-                sqlcon.close();
-            }
-        }
-        catch(Exception doh){
-            System.out.println("-E-" + doh.getMessage());
-        }
+        PersistSymbolMysql sql = new PersistSymbolMysql();
+        result = sql.checkSqlConnection();
         
         return result;
     }
+    
+    
+        
+        
+    //use enum for the arguement     
+    public static PersistSymbol createMySql(PersistSymbolFactory.modes value) {
+        
+        
+        PersistSymbolMysql persistence = new PersistSymbolMysql();
+       
+        
+        
+       
+        if (value == PersistSymbolFactory.modes.TEST){
+            persistence.setTestMode();
+            ;
+        }
+        else if (value == PersistSymbolFactory.modes.PRODUCTION){
+            persistence.setProductionMode();
+             
+        }
+        
+       
+        
+        
+            
+        return persistence;
+        
+    }
+
 }
