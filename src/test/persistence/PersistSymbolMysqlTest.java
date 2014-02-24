@@ -8,6 +8,7 @@ package test.persistence;
 
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertNotNull;
@@ -19,6 +20,7 @@ import persistence.PersistSymbol;
 import persistence.PersistSymbolFactory;
 import persistence.PersistSymbolMysql;
 import persistence.PersistSymbolXML;
+import persistence.PropertiesParserForMysql;
 
 /**
  *
@@ -27,7 +29,7 @@ import persistence.PersistSymbolXML;
 public class PersistSymbolMysqlTest {
     
         //Use an interface PersistSymbol to set up tests.
-    private PersistSymbol persistence;
+    private static PersistSymbol persistence;
     private static boolean checkconn;
 
     public PersistSymbolMysqlTest() {
@@ -35,11 +37,18 @@ public class PersistSymbolMysqlTest {
 
     @BeforeClass
     public static void setUpClass() {
+        
+       
        checkconn =  PersistSymbolFactory.checkSqlConnection();
+      
+       //Set in test mode
+       persistence = PersistSymbolFactory.createMySql(PersistSymbolFactory.modes.TEST);
+       
     }
 
     @AfterClass
     public static void tearDownClass() {
+        persistence = null;
     }
 
     @Before
@@ -50,22 +59,30 @@ public class PersistSymbolMysqlTest {
 
     @After
     public void tearDown() {
-        persistence = null;
+        
     }
     
     
     
     @Test
-    public void createSymbol() {
+    public void createSymbol() { // but don't persist yet
+        
         
         if (checkconn) {
-            PersistSymbol mysql= new PersistSymbolMysql();
+            
+            
+            PersistSymbol mysql= persistence;
+           
+            
+            
             Random randomGenerator = new Random();
-            int randomInt = randomGenerator.nextInt(1000);
+            int randomInt = randomGenerator.nextInt(10000);
             String newname = "newstock" + randomInt;
             Map<String,String> newsymbol = mysql.createSymbol(newname);
            
             assertNotNull(newsymbol);
+             
+           
         }
     }
     
@@ -73,15 +90,19 @@ public class PersistSymbolMysqlTest {
     public void duplicateSymbol() {
         
             if (checkconn) {
-                PersistSymbol mysql= new PersistSymbolMysql();
+                PersistSymbol mysql= persistence;
                 
                 Random randomGenerator = new Random();
                 int randomInt = randomGenerator.nextInt(1000);
-                String newname = "newstock" + randomInt;
+                String newname = "newstock" + randomInt ;
+               
+                
+                //delete it if it exists so we can start from scratch
+                mysql.deleteSymbol(newname);
                 
                 Map<String,String> newsymbol = mysql.createSymbol(newname);
-                newsymbol.put("somdomfield", "scoobydoo");
-                newsymbol.put("anotherfield", "shaggy");
+                newsymbol.put("somdomfield", "44.33");
+                newsymbol.put("anotherfield", "33.44");
                 
                 mysql.saveSymbol(newname);
                 
@@ -89,8 +110,10 @@ public class PersistSymbolMysqlTest {
                 Map<String,String> duplicate = mysql.createSymbol(newname);
                 
            
-                assertNotNull(newsymbol);
-                assertNull(duplicate);
+                assertNotNull("New Symbol", newsymbol);
+                assertNull("Duplicate", duplicate);
+                
+                
         }
     }
     
@@ -98,43 +121,45 @@ public class PersistSymbolMysqlTest {
     public void updateSymbol() {
         
         if (checkconn){
-            PersistSymbol mysql= new PersistSymbolMysql();
+            PersistSymbol mysql= persistence;
             Map<String,String> newsymbol = mysql.createSymbol("newstock2");
             if(newsymbol == null) {//could not create it b.c. it already exists
                 newsymbol= mysql.readSymbol("newstock2"); //just read it instead
             }
             
-            newsymbol.put("somdomfield", "scoobydoo");
-            newsymbol.put("anotherfield", "shaggy");
+            newsymbol.put("somdomfield", "99.89");
+            newsymbol.put("anotherfield", "54.34");
             mysql.saveSymbol("newstock2");
         }
+         
     }
     
     @Test
     public void readNonexistentSymbol() {
         
         if (checkconn) {
-            PersistSymbol mysql= new PersistSymbolMysql();
+            PersistSymbol mysql= persistence;
             Map<String,String> newsymbol = mysql.readSymbol("idontexist");
             assertNull(newsymbol);
         }
+         
     }
     
     
  @Test   
  public void deleteSymbol() {
          if (checkconn) {
-                PersistSymbol mysql= new PersistSymbolMysql();
+                PersistSymbol mysql= persistence;
                 
                 Random randomGenerator = new Random();
-                int randomInt = randomGenerator.nextInt(1000);
-                String newname = "newstock" + randomInt;
+                int randomInt = randomGenerator.nextInt(10000);
+                String newname = "newstock" + randomInt ;
                 
                 Map<String,String> newsymbol = mysql.createSymbol(newname);
                 assertNotNull(newsymbol);
                 
-                newsymbol.put("somdomfield", "scoobydoo");
-                newsymbol.put("anotherfield", "shaggy");
+                newsymbol.put("somdomfield", "123.45");
+                newsymbol.put("anotherfield", "456.78");
                 
                 mysql.saveSymbol(newname);
                 
@@ -148,25 +173,38 @@ public class PersistSymbolMysqlTest {
                 
             
         }
+         
     }
     
     @Test
     public void badNameTest() {
         if(checkconn) {
-            PersistSymbol mysql= new PersistSymbolMysql();
+            PersistSymbol mysql= persistence;
             Map<String,String> bad = mysql.readSymbol(null);
             assertNull(bad);
         }
+         
     }
     
     @Test
     public void badNameTest2() {
         if (checkconn) {
-            PersistSymbol mysql= new PersistSymbolMysql();
+            PersistSymbol mysql= persistence;
             Map<String,String> bad = mysql.readSymbol(".");
             assertNull(bad); 
         }
+         
     }
     
+    
+    @Test
+    public void getSymbolsTest() {
+        PersistSymbol mysql= persistence;
+        Set<String> result = mysql.getSymbols();
+        
+        assertNotNull(result);
+         
+    }
+   
  
 }
