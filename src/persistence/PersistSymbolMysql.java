@@ -70,7 +70,7 @@ public class PersistSymbolMysql implements PersistSymbol{
         //stocks table
         tablename = "production_table"; //default table used to store stocks (ie. stock symbol)
         //primary key field used in the database for stocks
-        pkname = "stockidpk";
+        pkname = "stockid";
         
         //users table (thinking ahead for multiple users)
         tablenameusers = "users";
@@ -244,11 +244,14 @@ public class PersistSymbolMysql implements PersistSymbol{
             try{
                 Connection sqlcon = DriverManager.getConnection(url, user, password);
                 
-                String deletecom ="delete from " + tablename + " where " + pkname + "=\"" + symbol + "\"";
-                Statement statement = sqlcon.createStatement();
-                boolean resultset = statement.execute(deletecom);
                 
-                //once this symbol is removed from the stocks table, remove it from the join table
+                //Remove stockid from stocks tablename if no one else owns this stockid
+                if (! checkOtherUsersOwningStockid(symbol, sqlcon)) {
+                    String deletecom ="delete from " + tablename + " where " + pkname + "=\"" + symbol + "\"";
+                    Statement statement = sqlcon.createStatement();
+                    boolean resultset = statement.execute(deletecom);
+                }
+                //Remove stockid owned by the current user from the join table
                 deleteSymbolJoin(symbol, sqlcon);
                 
                 sqlcon.close();
@@ -260,7 +263,35 @@ public class PersistSymbolMysql implements PersistSymbol{
     
     }
     
-    //Once this symbol is removed, the join table should not contain contain it either
+    public boolean checkOtherUsersOwningStockid (String symbol, Connection sqlcon) {
+        boolean result = true;
+        
+        //find if OTHER users have a stake in the stockid
+        String sqlcom = "select * from " + tablenamejoin 
+                + " where userid" + "!=\"" + currentuser+ "\"" +
+                " and stockid=" + "\"" + symbol +"\"";
+        int count = 0;
+        try {
+            Statement statement = sqlcon.createStatement();
+            ResultSet resultset = statement.executeQuery(sqlcom);
+            
+            while (resultset.next()){
+                count++;
+            }
+            if (count == 0) {
+                result = false;
+            }
+        }
+        catch(Exception doh) {
+            System.out.println("-E- checkBeforeDelete:" + doh.getMessage());
+        }
+        
+        return result;
+        
+    }
+    
+    
+    //the join table should remove the symbol for the user
     public void deleteSymbolJoin(String symbol, Connection sqlcon) {
         
          
@@ -377,7 +408,17 @@ public class PersistSymbolMysql implements PersistSymbol{
      */
     public Set<String>  getSymbols(){
      
-        String sqlcommand = "select * from " + tablename ;
+        //get stockid symbols owned by the current user
+        //use inner join to link the three tables to do so
+        
+        
+        String sqlcommand = "select u.*, s.* " +
+                            "from " + tablenameusers + " u " +
+                            "inner join " + this.tablenamejoin + " ts on ts.userid=u.userid " +
+                            "inner join " + tablename + " s on s.stockid=ts.stockid "+
+                            "where u.userid=" + "\"" + currentuser + "\"";
+        
+        
         Set <String> result  = new HashSet<>();
         try {
             Connection sqlcon = DriverManager.getConnection(url, user, password);
@@ -388,7 +429,7 @@ public class PersistSymbolMysql implements PersistSymbol{
             }
         }
         catch(Exception doh) {
-            System.out.println("-E- checkIfRecordExists:" + doh.getMessage());
+            System.out.println("-E- getSymbols:" + doh.getMessage());
         }
         
         
