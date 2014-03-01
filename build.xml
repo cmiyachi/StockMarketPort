@@ -166,6 +166,15 @@
                 </junit>
         </target>
 
+        <target name="clean.cobertura">
+                <delete file="${basedir}/cobertura.ser" />
+                <delete>
+			<fileset  dir="${build.codecoverage.dir}" includes="*" />
+                        <fileset dir="${build.instrumented.dir}" includes="**/*" />
+                      
+               </delete>
+        </target>
+
         <target name="tests.business.with.cobertura" depends="compile,cobertura.init">
 		<junit printsummary="true" haltonfailure="true">
 
@@ -201,15 +210,19 @@
         <!-- Make COBERTURA available to ant, ie. the cobertura-instrument tag -->
         <taskdef classpathref="jar.classpath" resource="tasks.properties" />
 
-        <target name="cobertura.init" depends="compile"
+        <target name="cobertura.init" depends="compile, clean.cobertura"
 		description="Create instrument classes for cobertura">
+
        
                 <cobertura-instrument todir="${build.instrumented.dir}">
 
                         <ignore regex="org.apache.log4j.*" />
                 	<fileset dir = "${build.dir}" >
 
-				<include name = "**/*.class" />	
+				<include name = "persistence/PersistSymbolXML.class" />	
+                                <include name = "business/ScrapStockData.class" />
+                                <include name = "business/SymbolSearch.class" />
+                                <include name = "business/YahooFinanceConnection.class" />
                		 </fileset>
                 </cobertura-instrument>
                 
