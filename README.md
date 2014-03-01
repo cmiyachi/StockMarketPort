@@ -57,3 +57,24 @@ Iteration 2
     First Swing iteration complete
     Code coverage added
     Persistence in both XML and MySQL
+
+ 2/26/14 Iteration 3 goals
+
+ Swing Layer
+
+ 	•  Refactor the Swing UI to NOT use IntelliJ forms - this should only take me a few hours and I'll do this right away.  I talked to Spenser and he said these forms are not very compatible with other IDEs.  I think it will be easier to work with too. 
+
+ 	•  Get the stock history working with a dialog box
+ 	• Add Jfile Chooser to Swing UI
+
+
+ Work on higher code coverage:
+
+ 	• Code Coverage  - focus on getting more coverage.  It is not good today.
+ 	• How to get code coverage in Swing?
+
+ Lower priority:
+
+ • SQL Setup - should we do SQL or XML ?
+ • We could not get code coverage to work in IntelliJ (ask Spenser about this)
+ • Ask Spenser about code coverage in Swing layer
