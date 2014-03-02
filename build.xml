@@ -223,6 +223,7 @@
                                 <include name = "business/ScrapStockData.class" />
                                 <include name = "business/SymbolSearch.class" />
                                 <include name = "business/YahooFinanceConnection.class" />
+                                <include name = "business/HistoryReportForm.class" />
                		 </fileset>
                 </cobertura-instrument>
                 
