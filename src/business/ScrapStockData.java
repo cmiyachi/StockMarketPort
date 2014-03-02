@@ -2,13 +2,7 @@ package business;
 
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -24,42 +18,9 @@ public class ScrapStockData implements ScrapStockDataInterface{
 
     private YahooFinanceConnection yahooFinanceConnection = new YahooFinanceConnection();
 
-    /*
-     *  Constructs HashMap with available stock information options
-     */
-
-    public ScrapStockData(){
-        //constructs HashMap??? Here or get it from XML
-        mapStockInfoCodes.put("Ask", "a");
-        mapStockInfoCodes.put("Bid", "b");
-        mapStockInfoCodes.put("Price/Sale", "p5");
 
 
-    }
-
-
-    /*
-     * creates a list for drop down menu
-     *
-     * @return list of available stock information options
-     */
-
-
-    private List<String> getListInfoNames(){
-
-        List<String> listInfoNames = new ArrayList<String>();
-        //Set<String> set = new HashSet<String>();
-        listInfoNames.add("Ask");
-        listInfoNames.add("Bid");
-        listInfoNames.add("Price/Sale");
-
-
-        return listInfoNames;
-
-    }
-
-
-    /**
+       /**
      *
      * @param Symbol - stock symbol
      * @param fromDate
