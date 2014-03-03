@@ -30,7 +30,7 @@
  
         <property name="build.testresults.dir" value="build/testresults" />
         <property name="build.codecoverage.dir" value="build/codecoverage" />    
-
+        <property name="build.testxml.dir" value ="build/testxml" />
 
 
 	<path id="compile.classpath">
@@ -63,6 +63,7 @@
                 <mkdir dir= "${build.instrumented.dir}" />
                 <mkdir dir="${build.testresults.dir}" />
                 <mkdir dir="${build.codecoverage.dir}" />
+                <mkdir dir ="${build.testxml.dir}" />
 	</target>
 
 	<target name="compile" depends="init" description="Compile Java code">
@@ -159,7 +160,7 @@
 
 
                    		<fileset dir="${test.src.dir}">
-                      			<include name="test/persistence/*.java"/>
+                      			<include name="test/persistence/*XML*.java"/>
                    		</fileset>
                    
                 	</batchtest>
