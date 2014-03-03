@@ -7,18 +7,15 @@ package test.business;
  * @version 1.0
  */
 import business.SymbolSearch;
-
-import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 /**
  *
  * @author Ivan
@@ -30,7 +27,7 @@ public class SymbolSearchTest {
         List<String> listNames = new ArrayList<String>();
         listNames = ss.getNamesList();
         String result = listNames.get(0);
-        String expected = "Asia Pacific Fund Inc.";
+        String expected = "";
         assertEquals(result, expected);
 
     }
@@ -58,7 +55,7 @@ public class SymbolSearchTest {
     public void testGetSymbol() {
 
         SymbolSearch ss = new SymbolSearch();
-        String result = ss.getSymbol("Response Genetics, Inc");
+        String result = ss.getSymbol("Response Genetics");
         String expected = "RGDX";
         assertEquals(result, expected);
     }
@@ -70,17 +67,12 @@ public class SymbolSearchTest {
     public void testGetMatchingNames() {
 
         SymbolSearch ss = new SymbolSearch();
-        List<String> listNames = new ArrayList<String>();
-        String str = ss.getMatchingNames("As").get(0);
-        char expected1 = 'A';
-        char expected2 = 's';
-        for(int i =0; i < str.length(); i++){
-            char result1 = str.charAt(0);
-            char result2 = str.charAt(1);
-            assertEquals(expected1, result1);
-            assertEquals(expected2, result2);
+        List<String> listNames = ss.getMatchingNames("As");
+
+        for(String name : listNames){
+            assertTrue(name.toLowerCase().startsWith("as"));
         }
-        //String expected = "Asia Pacific Fund Inc.";
+
     }
 
 }

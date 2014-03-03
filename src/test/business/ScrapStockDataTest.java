@@ -1,14 +1,14 @@
 package test.business; 
 
 import business.ScrapStockData;
-import org.junit.Test;
-import org.junit.Before; 
 import org.junit.After;
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
 
-import java.util.List;
 import java.util.Date;
+import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
