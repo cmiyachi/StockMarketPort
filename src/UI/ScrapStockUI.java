@@ -1,21 +1,19 @@
 package UI;
 
+import business.HistoryReportForm;
 import business.ScrapStockData;
 import persistence.PersistSymbol;
 import persistence.PersistSymbolXML;
 
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
-import javax.swing.*;
-import static javax.swing.JFrame.EXIT_ON_CLOSE;
-import javax.swing.table.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemListener;
-import java.util.ArrayList;
-import java.util.List;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by US315746 on 3/1/14.
@@ -146,6 +144,19 @@ public class ScrapStockUI extends JFrame {
                 currentRow++;
             }
         });
+
+        /**
+         * History table
+         */
+        stockInfoTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                   int row = stockInfoTable.getSelectedRow();
+                   HistoryReportForm historyReportForm = new HistoryReportForm((String)stockInfoTable.getValueAt(row, 0));
+            }
+        });
+
+
     }
     public static void main(String[] args) {
         ScrapStockUI frame = new ScrapStockUI();
