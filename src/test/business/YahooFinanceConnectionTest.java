@@ -1,19 +1,15 @@
 package test.business;
 
 
-import java.util.Date;
-
 import business.YahooFinanceConnection;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Before;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
 
 /** 
 * YahooFinanceConnection Tester. 
@@ -37,14 +33,17 @@ public void after() throws Exception {
  * Test of getInformationList method, of class business.YahooFinanceConnection.
  */
 @Test
-public void testGetInformationList_3args() {
-    Date from = new Date();
-    Date to = new Date();
+public void testGetInformationList_Histiry() {
+    Date fromDate = new Date();
+    Calendar c = Calendar.getInstance();
+    c.setTime(fromDate);
+    c.add(Calendar.MONTH, -2);
+    Date toDate = c.getTime();
     YahooFinanceConnection yFC = new YahooFinanceConnection();
 
-    String result = yFC.getInformationList("GOOG", from, to).get(0);
+    String result = yFC.getInformationList("NKE", toDate, fromDate).get(0);
     String expected = "Date,Open,High,Low,Close,Volume,Adj Close";
-    assertEquals("Compare stringd", expected, result );
+    assertEquals("Compare string", expected, result );
 
 
 }
