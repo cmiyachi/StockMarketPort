@@ -227,7 +227,12 @@ public class PersistSymbolXML implements PersistSymbol{
      */
     @Override
     public void writeDB(String file) {
+        
+        if (file == null) {
+            return ;
+        }
         File outfile = new File(file);
+        
         
         
         try {

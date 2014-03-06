@@ -1,6 +1,8 @@
 package test.persistence; 
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import org.junit.*;
 import persistence.PersistSymbol;
 import persistence.PersistSymbolXML;
@@ -212,6 +214,22 @@ public void testInsertData() {
 }
 
 
+//These tests are simple barf tests.
+//They should not cause a crash.
+@Test
+public void testDeleteBadSymbol() {
+    //should not crash the test
+    persistence.deleteSymbol(null);
+    persistence.deleteSymbol("doesnotexist");
+}
+
+@Test
+public void testSaveBadSymbol() {
+    //should not crash the test
+    persistence.saveSymbol(null);
+}
+
+
 /*
     Test the FileIO of the PersistSymbol implementation.
     Assuming that all systems have the Public Documents directory available for read and write.
@@ -220,7 +238,7 @@ public void testInsertData() {
 @Test
 public void testWriteXML() {
     
-    String xmlfile = "C:\\Users\\Public\\Documents\\testWrite.xml";
+    String xmlfile = "build\\testxml\\testWrite.xml";
     
     //create a valid stock symbol and insert test data. 
     String symbol = "testsymbol";
@@ -244,7 +262,7 @@ public void testWriteXML() {
 
 @Test
 public void testWriteReadXML() {
-    String xmlfile = "C:\\Users\\Public\\Documents\\testWriteRead.xml";
+    String xmlfile = "build\\testxml\\testWriteRead.xml";
     
     //create a valid stock symbol and insert test data. 
     String symbol = "testsymbol";
@@ -281,7 +299,7 @@ public void testWriteReadXML() {
 
 @Test
 public void testWriteReadXML2() {
-    String xmlfile = "C:\\Users\\Public\\Documents\\testWriteRead2.xml";
+    String xmlfile = "build\\testxml\\testWriteRead2.xml";
     
     //create a valid stock symbol and insert test data. 
     String symbol = "testsymbol";
@@ -319,9 +337,86 @@ public void testWriteReadXML2() {
     
 }
 
+//These remaining tests check bad file inputs and outputs.
+
+
+@Test
+public void testWriteBadFile() {
+    // should not crash the test
+    persistence.writeDB(null);
+    persistence.writeDB("C:\\baddirname\\somewhereovertherainbow");
+    
+}
+
+@Test
+public void testWriteEmptyFile() {
+     //makes bad file
+     persistence.writeDB("build\\testxml\\emptyXmlTest");
+}
+
+@Test
+public void testReadBadFile() {
+    persistence.readFromDB(null);
+}
+
+
+@Test
+public void testWriteReadEmptyFileTest() {
+  
+    String badfile = "build\\testxml\\testBadXmlFile";
+    writeBadDB(badfile);
+    persistence.readFromDB(badfile);
+    
+    
+    
+}
 
 
 
+//helper function to write out garbage xml
+public void writeBadDB(String file) {
+        
+        if (file == null) {
+            return ;
+        }
+        File outfile = new File(file);
+        
+        
+        
+        try {
+            if (! outfile.exists()) {
+                outfile.createNewFile();
+            }
+            
+            FileWriter fwt = new FileWriter(outfile.getAbsoluteFile());
+            BufferedWriter bwt = new BufferedWriter(fwt);
+            
+            //write contents of dataCOntainer out to the XML file
+            bwt.write("<?xml version=\"1.0\"?>");
+            bwt.newLine();
+            
+            bwt.write("<portfolio>");
+            bwt.newLine();
+            
+            
+                bwt.write("\t\t<stock id=\"yuck\" />");
+                bwt.newLine();
+              
+                //bwt.write("\t\t</badnodename>");
+                //bwt.newLine();
+            
+            
+            bwt.write("</portfolio>");
+            bwt.newLine();
+            bwt.close();
+            
+        }
+        catch(Exception doh) {
+            System.out.println(doh.getMessage());
+        }
+        
+    }
+    
 
 
 
