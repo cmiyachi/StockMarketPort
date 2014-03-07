@@ -4,6 +4,7 @@ import business.HistoryReportForm;
 import business.ScrapStockData;
 import persistence.PersistSymbol;
 import persistence.PersistSymbolXML;
+import business.SymbolSearchForm;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -22,10 +23,12 @@ public class ScrapStockUI extends JFrame {
 
     private JLabel labelStockSymbol = new JLabel();  // this is the label for the stock symbol text box
     private JTextField textFieldStockSymbol = new JTextField("",5); // this is the text box for entering the stock symbol
-    private JComboBox comboBoxStockSymbol = new JComboBox(); // this is a list of stocks that are saved
+    private DefaultComboBoxModel cbModel = new DefaultComboBoxModel(); // this contains all the items in teh combo box
+    private JComboBox comboBoxStockSymbol = new JComboBox(cbModel); // this is a list of stocks that are saved
     private JButton buttonLookUp = new JButton("Look Up");  //  this is a button to look up the data on the stock in the text box
     private JButton buttonAdd =  new JButton("Add");    // this button adds the symbol in the text box to the combo box / list to be saved
     private JButton buttonRemove = new JButton("Remove");// this button removes the symbol in the text box to the combo box and from list to be saved
+    private JButton buttonSearch = new JButton("Symbol Search");// this button brings up a dialog to search for a stock symbol
     private JScrollPane scrollPaneTable; // this is the scroll panel where the table goes
     private JTable stockInfoTable;  // this is the table where data on the stock is displayed
     private String[] columnNames = {"Symbol", "Price", "Change", "Percent Change"};  // the items we will get about the stock
@@ -60,6 +63,7 @@ public class ScrapStockUI extends JFrame {
         northPanel.add(buttonLookUp);
         northPanel.add(buttonAdd);
         northPanel.add(buttonRemove);
+        northPanel.add(buttonSearch);
         add(northPanel, BorderLayout.NORTH);
 
         JPanel southPanel = new JPanel();
@@ -73,6 +77,19 @@ public class ScrapStockUI extends JFrame {
         this.setLocationRelativeTo(null);
         this.setVisible(true);
 
+        // this is the listener for the search button which helps the user find the symbol of a company name
+        buttonSearch.addActionListener(new ActionListener()
+        {
+
+
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                SymbolSearchForm searchFrame = new SymbolSearchForm();
+                searchFrame.setVisible(true);
+            }
+        });
+
         // listener for add button - this is called when the user presses the "Add" button
         buttonAdd.addActionListener(new ActionListener()
         {
@@ -85,10 +102,11 @@ public class ScrapStockUI extends JFrame {
                     // make sure the symbol isn't already here
                     comboBoxStockSymbol.setSelectedItem(stockSymbol);
                     int theIndex = comboBoxStockSymbol.getSelectedIndex();
-                    if (!(theIndex > 0))
-                    {
 
-                        comboBoxStockSymbol.addItem(stockSymbol);
+                    if (cbModel.getIndexOf(stockSymbol) == -1)
+                    {
+                        cbModel.addElement(stockSymbol);
+                        //comboBoxStockSymbol.addItem(stockSymbol);
                         Map<String,String> obj = persistence.createSymbol(stockSymbol);
                         persistence.saveSymbol(stockSymbol);
                         persistence.writeDB(xmlFile);
@@ -134,6 +152,7 @@ public class ScrapStockUI extends JFrame {
                 // create a new ScrapStockData object
                 ScrapStockData stockInfo = new ScrapStockData();
                 // TODO what happens if the stock Symbol is unknown?
+                // TODO add code to make sure the table doesn't run out (wrap around?)
                 // Get the info on the stock
                 // see https://code.google.com/p/yahoo-finance-managed/wiki/enumQuoteProperty for meaning
                 // of the string to obtain info on stocks
@@ -146,13 +165,16 @@ public class ScrapStockUI extends JFrame {
         });
 
         /**
-         * History table
+         * History table - it pops up when a row on the table is clicked
          */
         stockInfoTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                   int row = stockInfoTable.getSelectedRow();
+              //  if (e.getClickCount() == 2) {
+                   JTable target = (JTable)e.getSource();
+                   int row = target.getSelectedRow();
                    HistoryReportForm historyReportForm = new HistoryReportForm((String)stockInfoTable.getValueAt(row, 0));
+              //  }
             }
         });
 
