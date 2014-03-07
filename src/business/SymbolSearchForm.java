@@ -53,10 +53,10 @@ public class SymbolSearchForm extends JFrame{
         add(southPanel, BorderLayout.SOUTH);
 
 
-        this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(HIDE_ON_CLOSE);
         this.pack();
         this.setLocationRelativeTo(null);
-        this.setVisible(true);
+        this.setVisible(false);
     }
 
     public static void main(String[] args) {
