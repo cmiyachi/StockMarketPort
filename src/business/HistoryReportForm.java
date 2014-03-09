@@ -56,7 +56,7 @@ public class HistoryReportForm extends JFrame{
         southPanel.add(table);
         add(southPanel, BorderLayout.SOUTH);
 
-        this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(HIDE_ON_CLOSE);
         this.pack();
         this.setLocationRelativeTo(null);
         this.setVisible(true);
