@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<project name="StockMarketPort" default="alltests" basedir=".">
+<project name="StockMarketPort" default="info" basedir=".">
 
 
        <!-- run in root project dir -->
@@ -55,6 +55,20 @@
         </path>
 
 
+	<target name="info">
+		<echo>USAGE:</echo>
+		<echo></echo>
+		<echo>To run junit tests with code coverage, run:</echo>
+		<echo>	ant alltests.with.cobertura</echo>
+		<echo>		Cobertura Results: build/codecoverage/index.html</echo>
+		<echo>		Test Results: build/testresults/*.xml</echo>
+		<echo></echo>
+		<echo>To run junit tests without code coverage, run:</echo>
+		<echo>	ant alltests</echo> 
+		<echo>		Test Results: build/testresults/*.txt</echo>
+	</target>
+
+
 
 	<target name="init">
 		<mkdir dir="${build.dir}" />
@@ -104,12 +118,12 @@
         </target>
 
 
-        <target name="test1" depends="compile">
+        <target name="testpersistence" depends="compile">
 		<junit printsummary="true" haltonfailure="true">
 	        <classpath refid="test.classpath" />
                 <classpath refid="jar.classpath" />
                 <formatter type="plain" />
-                <batchtest fork="yes">
+                <batchtest fork="yes" todir="${build.testresults.dir}">
                    <fileset dir="${test.src.dir}">
                       <include name="test/persistence/*.java"/>
                    </fileset>
@@ -117,12 +131,12 @@
                 </batchtest>
                 </junit>
         </target>
-        <target name="test2" depends="compile">
+        <target name="testbusiness" depends="compile">
 		<junit printsummary="true" haltonfailure="true">
 	        <classpath refid="test.classpath" />
                 <classpath refid="jar.classpath" />
                 <formatter type="plain" />
-                <batchtest fork="yes">
+                <batchtest fork="yes" todir="${build.testresults.dir}">
                    <fileset dir="${test.src.dir}">
                       <include name="test/business/*.java"/>
                    </fileset>
@@ -131,7 +145,7 @@
         </target>
 
 
-        <target name="alltests" depends="test1,test2">
+        <target name="alltests" depends="testpersistence,testbusiness">
         </target>
 
         <target name="main" depends="run" />	
@@ -231,15 +245,16 @@
         </target>
 
 
-        <target name="alltests.with.cobertura" depends="cobertura.init,tests.persistence.with.cobertura,tests.business.with.cobertura">
-            <cobertura-report format="html" datafile="${basedir}/cobertura.ser" destdir="${build.codecoverage.dir}" srcdir="${src.dir}" />
-        </target>
 
        
         <!-- manual generation of cobertura reports, in case one of the tests just barfs, but you want to see reports anyway -->    
         <target name="just.generate.cobertura.reports">
             <cobertura-report format="html" datafile="${basedir}/cobertura.ser" destdir="${build.codecoverage.dir}" srcdir="${src.dir}" />
         </target>
+
+        <target name="alltests.with.cobertura" depends="cobertura.init,tests.persistence.with.cobertura,tests.business.with.cobertura,just.generate.cobertura.reports">
+        </target>
+
 </project>
 
 
