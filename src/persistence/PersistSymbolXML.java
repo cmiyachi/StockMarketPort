@@ -25,7 +25,7 @@ import org.w3c.dom.NodeList;
 
 
 /**
- * For iteration 1, the persistence is implemented using XML.
+ * For the current iteration, the persistence is implemented using XML.
  * 
  * @author zyyang1
  */
@@ -50,8 +50,8 @@ public class PersistSymbolXML implements PersistSymbol{
     private Map<String,Map<String,String> > wip;  
     
     
-    //The xmlfile that will persist the stock symbol data.
-    private String xmlfile;
+    //The xmlFile that will persist the stock symbol data.
+    private String xmlFile;
 
     /**
      * Default Constructor.
@@ -81,9 +81,14 @@ public class PersistSymbolXML implements PersistSymbol{
     public void saveSymbol(String symbol) {
         
         //updates our dataContainer hash
-        
-        if( wip.containsKey(symbol)) {
-            dataContainer.put(symbol, wip.get(symbol));
+        //checks to make sure symbol name is ok, otherwise it was tagged previously as a bogusstock symbol
+        if( wip.containsKey(symbol) && ! wip.get(symbol).keySet().contains("bogusstock")) {
+            
+                dataContainer.put(symbol, wip.get(symbol));
+            
+        }
+        else {
+            System.out.println("-E- Trying to persist a bad symbol.");
         }
         
         
@@ -145,8 +150,11 @@ public class PersistSymbolXML implements PersistSymbol{
         
             return data;
         }
-        else {
-            return null;
+        else { //return a bogus
+            HashMap<String,String> data = new HashMap<String,String>();
+            wip.put("bogus", data);
+            data.put("bogusstock", "bogusstock");
+            return data;
         }
         
     }
@@ -162,24 +170,24 @@ public class PersistSymbolXML implements PersistSymbol{
     public void readFromDB(String file) {
         
         try{
-            this.xmlfile = file;
-            File xmlfile = new File(file);
+            this.xmlFile = file;
+            File xmlFile = new File(file);
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
-            Document doc = db.parse(xmlfile);
+            Document doc = db.parse(xmlFile);
             
             
-            NodeList nlist = doc.getElementsByTagName("stock");
+            NodeList nodeList = doc.getElementsByTagName("stock");
             
             
             //Get all the stock entries
-            for (int count = 0 ; count < nlist.getLength(); count++) {
+            for (int count = 0 ; count < nodeList.getLength(); count++) {
             
-                Node node = nlist.item(count);
+                Node node = nodeList.item(count);
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     
                     Element element = (Element) node;
-                    String stockid = element.getAttribute("id");
+                    String stockId = element.getAttribute("id");
                     
                     
                     
@@ -195,7 +203,7 @@ public class PersistSymbolXML implements PersistSymbol{
                         realdata.put(atagname,element.getElementsByTagName(atagname).item(0).getTextContent() );
                     }
                     
-                    dataContainer.put(stockid, realdata);
+                    dataContainer.put(stockId, realdata);
                 
                 }
                 
@@ -218,7 +226,7 @@ public class PersistSymbolXML implements PersistSymbol{
      */
     @Override
     public void writeDB() {
-        writeDB(this.xmlfile);
+        writeDB(this.xmlFile);
     }
     
     /**
