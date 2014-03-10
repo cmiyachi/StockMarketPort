@@ -164,11 +164,14 @@ public void testCreateBadSymbol() {
     //Thus symbol is not alphanumeric and is not a suitable argument.
     String symbol = "";
 
-    Map<String, String> expResult = null;
+    
     Map<String, String> result = persistence.createSymbol(symbol);
 
-    //No Stock symbol data is returned, as the stock symbol name is bogus.    
-    assertEquals(expResult, result);
+    //Symbol data is returned, but its a bogus.    
+    assertNotNull("Bad symbol create", result);
+    
+    Set<String> keys = result.keySet();
+    assertTrue("Bad symbol create", keys.contains("bogusstock"));
 
 }
 
@@ -182,11 +185,15 @@ public void testCreateBadSymbol2() {
     //Another bad symbol name
     String symbol = null;
 
-    Map<String, String> expResult = null;
+    
     Map<String, String> result = persistence.createSymbol(symbol);
     
-    //No data structure is created, since the stock symbol name is not alphanumeric.
-    assertEquals(expResult, result);
+    //Symbol data is returned, but its a bogus.    
+    assertNotNull("Create Bad Symbol2", result);
+    
+    Set<String> keys = result.keySet();
+    assertTrue("Create Bad Symbold2", keys.contains("bogusstock"));
+    
 
 }
 
@@ -206,9 +213,9 @@ public void testInsertData() {
     
     //Now query it and see check that data
     Map<String,String> anotherobj = persistence.readSymbol(symbol);
-    assertNotNull(anotherobj);
-    assertTrue(anotherobj.containsKey("somefield"));
-    assertEquals("somedata", anotherobj.get("somefield"));
+    assertNotNull("Insert Data", anotherobj);
+    assertTrue("Insert Data", anotherobj.containsKey("somefield"));
+    assertEquals("Insert Data", "somedata", anotherobj.get("somefield"));
     
     
 }
@@ -227,6 +234,27 @@ public void testDeleteBadSymbol() {
 public void testSaveBadSymbol() {
     //should not crash the test
     persistence.saveSymbol(null);
+}
+
+@Test
+public void testSaveBadSymbol2() {
+
+    //Thus symbol is not alphanumeric and is not a suitable argument.
+    String symbol = "";
+
+    
+    Map<String, String> result = persistence.createSymbol(symbol);
+
+    //Symbol data is returned, but its a bogus.    
+    assertNotNull("Save Bad Symbol 2", result);
+    
+    Set<String> keys = result.keySet();
+    assertTrue("Save Bad Symbol 2", keys.contains("bogusstock"));
+
+    //try to save bad symbol, it should not be persisted
+    persistence.saveSymbol(symbol);
+    
+    assertFalse("Save Bad Symbol 2", persistence.getSymbols().contains(symbol));
 }
 
 
@@ -403,7 +431,7 @@ public void writeBadDB(String file) {
                 bwt.newLine();
               
                 //bwt.write("\t\t</badnodename>");
-                //bwt.newLine();
+                //Pbwt.newLine();
             
             
             bwt.write("</portfolio>");
