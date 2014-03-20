@@ -10,7 +10,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-/**
+/**NOT USED IN FINAL PROJECT.
+ *
+ * This class was intended to be an entity class for JDBC.MYSql.
+ * Final project uses XML, so this class is not needed.
  *
  * @author zyyang1
  */

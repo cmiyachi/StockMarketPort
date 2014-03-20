@@ -23,7 +23,9 @@ import org.w3c.dom.NodeList;
 
 
 
-/**
+/**NOT USED IN FINAL PROJECT.
+ *
+ * Final project uses XML.
  *
  * @author zyyang1
  */

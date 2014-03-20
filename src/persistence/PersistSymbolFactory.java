@@ -16,7 +16,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-/**
+/**  NOT USED IN FINAL PROJECT.
+ *   Intended for use during transition from XML to JDBC.MySQL.
+ *   Since, XML is used for final project, no need for this class.
+ *
  *
  * @author zyyang1
  */
